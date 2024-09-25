@@ -1,0 +1,12 @@
+{
+  "domain": "mvg",
+  "name": "MVG",
+  "documentation": "",
+  "dependencies": [],
+  "codeowners": [
+    "@g4bri3lDev"
+  ],
+  "requirements": [],
+  "iot_class": "cloud_polling",
+  "version": "0.0.1"
+}
