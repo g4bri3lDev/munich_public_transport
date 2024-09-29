@@ -1,16 +1,16 @@
 {
   "domain": "munich_public_transport",
   "name": "Munich Public Transport (MVG)",
-  "documentation": "https://github.com/g4bri3lDev/munich_public_transport",
-  "issue_tracker": "https://github.com/g4bri3lDev/munich_public_transport/issues",
-  "dependencies": [],
   "codeowners": [
     "@g4bri3lDev"
   ],
-  "requirements": [
-    "mvg @ git+https://github.com/jrester/mvg.git@main"
-  ],
   "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/g4bri3lDev/munich_public_transport",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/g4bri3lDev/munich_public_transport/issues",
+  "requirements": [
+    "mvg@git+https://github.com/jrester/mvg.git@main"
+  ],
   "version": "0.1.0"
 }
