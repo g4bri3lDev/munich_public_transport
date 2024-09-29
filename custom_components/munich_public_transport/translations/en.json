@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Search for a Station",
+        "description": "{query_instructions}",
+        "data": {
+          "search_query": "Search Query"
+        }
+      },
+      "select_station": {
+        "title": "Select a Station",
+        "description": "Choose a station from the search results",
+        "data": {
+          "station": "Station"
+        }
+      },
+      "select_lines": {
+        "title": "Select Lines",
+        "description": "{instructions}",
+        "data": {
+          "lines": "Lines"
+        }
+      },
+      "select_directions": {
+        "title": "Select Directions",
+        "description": "Select the directions to track.",
+        "data": {
+          "directions": "Directions"
+        }
+      },
+      "other_options": {
+        "title": "Additional Options",
+        "description": "Configure departure count and update interval",
+        "data": {
+          "departure_count": "Departure Count",
+          "scan_interval": "Update Interval"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the MVG API",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error",
+      "no_stations_found": "No stations found matching the search query"
+    },
+    "abort": {
+      "already_configured": "This station is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Lines",
+        "data": {
+          "lines": "Lines"
+        }
+      },
+      "directions": {
+        "title": "Update Directions",
+        "description": "Select the directions to track.",
+        "data": {
+          "directions": "Directions"
+        }
+      },
+      "other_options": {
+        "title": "Update Additional Options",
+        "data": {
+          "departure_count": "Departure Count",
+          "scan_interval": "Update Interval"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_departure": {
+        "name": "Next Departure"
+      },
+      "upcoming_departures": {
+        "name": "Upcoming Departures"
+      }
+    }
+  }
+}

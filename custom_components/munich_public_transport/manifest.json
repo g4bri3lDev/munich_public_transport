@@ -1,0 +1,15 @@
+{
+  "domain": "munich_public_transport",
+  "name": "Munich Public Transport (MVG)",
+  "documentation": "",
+  "dependencies": [],
+  "codeowners": [
+    "@g4bri3lDev"
+  ],
+  "requirements": [
+    "mvg @ git+https://github.com/jrester/mvg.git@master"
+  ],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "version": "0.1.0"
+}

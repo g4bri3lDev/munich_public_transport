@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Station suchen",
+        "description": "{query_instructions}",
+        "data": {
+          "search_query": "Suchbegriff"
+        }
+      },
+      "select_station": {
+        "title": "Station auswählen",
+        "description": "Station aus den Suchergebnissen auswählen",
+        "data": {
+          "station": "Station"
+        }
+      },
+      "select_lines": {
+        "title": "Linien auswählen",
+        "description": "{instructions}",
+        "data": {
+          "lines": "Linien"
+        }
+      },
+      "select_directions": {
+        "title": "Richtungen auswählen",
+        "description": "Zu überwachende Richtungen auswählen.",
+        "data": {
+          "directions": "Richtungen"
+        }
+      },
+      "other_options": {
+        "title": "Weitere Optionen",
+        "description": "Anzahl der Abfahrten und das Aktualisierungsintervall konfigurieren",
+        "data": {
+          "departure_count": "Anzahl der Abfahrten",
+          "scan_interval": "Aktualisierungsintervall"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zur MVG-API fehlgeschlagen",
+      "invalid_auth": "Ungültige Authentifizierung",
+      "unknown": "Unerwarteter Fehler",
+      "no_stations_found": "Keine Stationen gefunden, die der Suchanfrage entsprechen"
+    },
+    "abort": {
+      "already_configured": "Diese Station ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Linien aktualisieren",
+        "data": {
+          "lines": "Linien"
+        }
+      },
+      "directions": {
+        "title": "Richtungen aktualisieren",
+        "description": "Zu überwachende Richtungen auswählen.",
+        "data": {
+          "directions": "Richtungen"
+        }
+      },
+      "other_options": {
+        "title": "Weitere Optionen aktualisieren",
+        "data": {
+          "departure_count": "Abfahrtsanzahl",
+          "scan_interval": "Aktualisierungsintervall"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_departure": {
+        "name": "Nächste Abfahrt"
+      },
+      "upcoming_departures": {
+        "name": "Kommende Abfahrten"
+      }
+    }
+  }
+}
