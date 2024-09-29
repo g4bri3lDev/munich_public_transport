@@ -53,6 +53,19 @@ You can customize the integration's behavior through the Options flow:
 2. Find the Munich Public Transport integration and click "Options".
 3. Adjust the lines, directions, number of departures, and update interval as needed.
 
+## Screenshots
+### Selecting a station from the search results
+![Selecting a station from the search results](screenshots/select_station.png)
+### All added stations
+![ALl added stations](screenshots/entries.png)
+### Device Overview
+![Device Overview](screenshots/device_overview.png)
+### All Departures
+![All Departures](screenshots/all_departures.png)
+### A specific line and direction
+![A specific line and direction](screenshots/line.png)
+
+
 ## Troubleshooting
 
 - If you encounter connection errors, ensure that your Home Assistant instance has internet access.
