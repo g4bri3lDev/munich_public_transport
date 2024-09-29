@@ -8,7 +8,7 @@
     "@g4bri3lDev"
   ],
   "requirements": [
-    "mvg @ git+https://github.com/jrester/mvg.git@master"
+    "mvg @ git+https://github.com/jrester/mvg.git@main"
   ],
   "config_flow": true,
   "iot_class": "cloud_polling",
