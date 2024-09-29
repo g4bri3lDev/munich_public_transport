@@ -1,7 +1,8 @@
 {
   "domain": "munich_public_transport",
   "name": "Munich Public Transport (MVG)",
-  "documentation": "",
+  "documentation": "https://github.com/g4bri3lDev/munich_public_transport",
+  "issue_tracker": "https://github.com/g4bri3lDev/munich_public_transport/issues",
   "dependencies": [],
   "codeowners": [
     "@g4bri3lDev"

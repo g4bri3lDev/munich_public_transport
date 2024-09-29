@@ -16,7 +16,20 @@ This custom integration allows you to monitor public transport departures in Mun
 
 ## Installation
 
+### HACS (Home Assistant Community Store)
 
+This integration is not yet available in the default HACS repositories. To install it using HACS, follow these steps:
+
+1. Ensure you have [HACS](https://hacs.xyz/) installed in your Home Assistant instance.
+2. In the HACS panel, click on "Integrations".
+3. Click the three dots in the top right corner and select "Custom repositories".
+4. Add the following information:
+   - Repository: `https://github.com/g4bri3lDev/munich_public_transport`
+   - Category: Integration
+5. Click "Add".
+6. Search for "Munich Public Transport" in the HACS store.
+7. Click "Install" and follow the prompts.
+8. Restart Home Assistant.
 
 ### Manual Installation
 
