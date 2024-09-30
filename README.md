@@ -101,7 +101,6 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Acknowledgements
 
 - This integration uses the [MVG API](https://github.com/jrester/mvg) by jrester.
-- Thanks to the Home Assistant community for their support and feedback.
 
 ## Disclaimer
 
