@@ -104,7 +104,11 @@ async def async_setup_entry(
             }
         except Exception as err:
             _LOGGER.error(f"Error communicating with API: {err}", exc_info=True)
-            return None
+            return {
+                "all": [],
+                "grouped": {},
+                "next": None
+            }
 
     coordinator = DataUpdateCoordinator(
         hass,
