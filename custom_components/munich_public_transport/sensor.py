@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .api import MunichTransportAPI
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
@@ -26,20 +27,12 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from mvg import MvgApi, TransportType
 
 _LOGGER = logging.getLogger(__name__)
 
 ATTRIBUTION = "Data provided by MVG"
 
 DEFAULT_ICON = "mdi:train-car"
-
-def calculate_minutes_until(timestamp: int) -> int:
-    """Calculate minutes until the given timestamp."""
-    departure_time = datetime.fromtimestamp(timestamp)
-    now = datetime.now()
-    time_diff = departure_time - now
-    return max(0, int(time_diff.total_seconds() / 60))
 
 async def async_setup_entry(
         hass: HomeAssistant,
@@ -72,7 +65,7 @@ async def async_setup_entry(
         """Fetch data from API."""
         try:
             _LOGGER.debug(f"Fetching departures for station {station_id} ({station_name})")
-            departures = await MvgApi.departures_async(station_id)
+            departures = await MunichTransportAPI.fetch_departures(station_id)
             _LOGGER.debug(f"Fetched {len(departures)} departures")
 
             # Group departures by line and destination
@@ -87,13 +80,13 @@ async def async_setup_entry(
 
             # Sort and limit each group to departure_count
             for key in grouped_departures:
-                grouped_departures[key] = sorted(grouped_departures[key], key=lambda x: x['time'])[:departure_count]
+                grouped_departures[key] = sorted(grouped_departures[key], key=lambda x: x['realtime_departure'])[:departure_count]
 
             # Create a flat list of all filtered departures
             all_filtered_departures = [
                 dep for departures in grouped_departures.values() for dep in departures
             ]
-            all_filtered_departures.sort(key=lambda x: x['time'])
+            all_filtered_departures.sort(key=lambda x: x['realtime_departure'])
 
             _LOGGER.debug(f"Filtered to {len(all_filtered_departures)} departures across all lines/directions")
 
@@ -235,7 +228,7 @@ class NextDepartureSensor(MunichTransportBaseSensor):
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         if self.coordinator.data["next"]:
-            return calculate_minutes_until(self.coordinator.data["next"]['time'])
+            return MunichTransportAPI.calculate_minutes_until(self.coordinator.data["next"]['realtime_departure'])
         return None
 
     @property
@@ -247,10 +240,13 @@ class NextDepartureSensor(MunichTransportBaseSensor):
             attrs.update({
                 "line": next_dep['line'],
                 "destination": next_dep['destination'],
-                "departure_time": datetime.fromtimestamp(next_dep['time']).strftime("%H:%M"),
+                "realtime_departure": datetime.fromtimestamp(next_dep['realtime_departure']).strftime("%H:%M"),
+                "planned_departure": datetime.fromtimestamp(next_dep['planned_departure']).strftime("%H:%M"),
                 "type": next_dep['type'],
+                "occupancy": next_dep['occupancy'],
                 "cancelled": next_dep['cancelled'],
                 "messages": next_dep['messages'],
+                "network": next_dep['network'],
             })
         return attrs
 
@@ -275,7 +271,7 @@ class AllDeparturesSensor(MunichTransportBaseSensor):
     def native_value(self) -> StateType:
         """Return the minutes until the next departure across all lines."""
         if self.coordinator.data["all"]:
-            return calculate_minutes_until(self.coordinator.data["all"][0]['time'])
+            return MunichTransportAPI.calculate_minutes_until(self.coordinator.data["all"][0]['realtime_departure'])
         return None
 
     @property
@@ -286,11 +282,14 @@ class AllDeparturesSensor(MunichTransportBaseSensor):
             {
                 "line": dep['line'],
                 "destination": dep['destination'],
-                "departure_time": datetime.fromtimestamp(dep['time']).strftime("%H:%M"),
-                "minutes_until_departure": calculate_minutes_until(dep['time']),
+                "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
+                "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
+                "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
                 "type": dep['type'],
+                "occupancy": dep['occupancy'],
                 "cancelled": dep['cancelled'],
                 "messages": dep['messages'],
+                "network": dep['network'],
             } for dep in self.coordinator.data["all"]
         ]
         attrs["total_departures"] = len(self.coordinator.data["all"])
@@ -320,7 +319,7 @@ class LineSensor(MunichTransportBaseSensor):
         """Return the state of the sensor."""
         departures = self.coordinator.data["grouped"].get((self._line, self._destination), [])
         if departures:
-            return calculate_minutes_until(departures[0]['time'])
+            return MunichTransportAPI.calculate_minutes_until(departures[0]['realtime_departure'])
         return None
 
     @property
@@ -331,10 +330,13 @@ class LineSensor(MunichTransportBaseSensor):
         if departures:
             attrs["departures"] = [
                 {
-                    "departure_time": datetime.fromtimestamp(dep['time']).strftime("%H:%M"),
-                    "minutes_until_departure": calculate_minutes_until(dep['time']),
+                    "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
+                    "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
+                    "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
+                    "occupancy": dep['occupancy'],
                     "cancelled": dep['cancelled'],
                     "messages": dep['messages'],
+                    "network": dep['network'],
                 } for dep in departures
             ]
             attrs["type"] = departures[0]['type']

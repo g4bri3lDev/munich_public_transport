@@ -9,8 +9,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import selector
 
-from mvg import MvgApi
-
+from .api import MunichTransportAPI
 from .const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_DEPARTURE_COUNT
 
 import logging
@@ -51,7 +50,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         search_query = user_input["search_query"].lower()
         try:
-            all_stations = await MvgApi.stations_async()
+            all_stations = await MunichTransportAPI.fetch_stations(search_query)
             self.stations = [
                 station for station in all_stations
                 if search_query in station["name"].lower()
@@ -98,7 +97,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             station for station in self.stations if station["name"] == user_input["station"]
         )
         try:
-            self.departures = await MvgApi.departures_async(self.selected_station["id"])
+            self.departures = await MunichTransportAPI.fetch_departures(self.selected_station["id"])
         except Exception as err:
             _LOGGER.error(f"Error fetching departures: {err}")
             return self.async_abort(reason="cannot_connect")
