@@ -121,6 +121,29 @@ class MunichTransportAPI:
         return icons.get(transport_type, "mdi:train-car")
 
     @staticmethod
+    async def fetch_messages() -> List[Dict[str, Any]]:
+        """Fetch messages from the API."""
+        try:
+            data = await MunichTransportAPI._make_request(f"{MunichTransportAPI.BASE_URL}/messages")
+            messages = [
+                {
+                    "title": msg["title"],
+                    "description": msg["description"],
+                    "type": msg["type"],
+                    "valid_from": datetime.fromtimestamp(msg.get("validFrom", 0) / 1000).isoformat() if msg.get("validFrom") else None,
+                    "valid_to": datetime.fromtimestamp(msg.get("validTo", 0) / 1000).isoformat() if msg.get("validTo") else None,
+                    "lines": [line["label"] for line in msg.get("lines", [])],
+                }
+                for msg in data
+            ]
+            if not messages:
+                _LOGGER.warning("No messages found")
+            return messages
+        except MunichTransportAPIError as e:
+            _LOGGER.error(f"Error fetching messages: {e}")
+            raise
+
+    @staticmethod
     def calculate_minutes_until(timestamp: int) -> int:
         """Calculate minutes until the given timestamp."""
         departure_time = datetime.fromtimestamp(timestamp)  # Convert milliseconds to seconds
