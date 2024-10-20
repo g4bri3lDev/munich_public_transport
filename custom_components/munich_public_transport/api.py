@@ -1,6 +1,8 @@
+from urllib.parse import urlencode
+
 import aiohttp
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 import logging
 
@@ -58,7 +60,7 @@ class MunichTransportAPI:
             raise
 
     @staticmethod
-    async def fetch_departures(station_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def fetch_departures(station_id: str, limit: int = 50) -> List[Dict[str, Any]]:
         """Fetch departures for a given station ID."""
         try:
             data = await MunichTransportAPI._make_request(f"{MunichTransportAPI.BASE_URL}/departures", params={"globalId": station_id, "limit": limit})
@@ -71,11 +73,14 @@ class MunichTransportAPI:
                     "type": dep["transportType"],
                     "cancelled": dep.get("cancelled", False),
                     "messages": [msg for msg in dep.get("messages", [])],
-                    "platform": dep.get("platform", ""),
+                    "platform": dep.get("platform", None),
+                    "platform_changed": dep.get("platformChanged", False),
+                    "stop_position_number": dep.get("stopPositionNumber", None),
                     "delay": dep.get("delayInMinutes", 0),
                     "icon": MunichTransportAPI.get_icon(dep["transportType"]),
                     "occupancy": dep.get("occupancy", "UNKNOWN"),
                     "network": dep.get("network", ""),
+
                 }
                 for dep in data
             ]

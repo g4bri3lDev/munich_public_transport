@@ -275,12 +275,19 @@ class NextDepartureSensor(MunichTransportBaseSensor):
                 "destination": next_dep['destination'],
                 "realtime_departure": datetime.fromtimestamp(next_dep['realtime_departure']).strftime("%H:%M"),
                 "planned_departure": datetime.fromtimestamp(next_dep['planned_departure']).strftime("%H:%M"),
+                "delay": next_dep['delay'],
                 "is_late": next_dep['realtime_departure'] > next_dep['planned_departure'],
                 "type": next_dep['type'],
                 "occupancy": next_dep['occupancy'],
                 "cancelled": next_dep['cancelled'],
                 "network": next_dep['network'],
             })
+            if next_dep['platform'] is not None:
+                attrs["platform"] = next_dep['platform']
+                attrs["platform_changed"] = next_dep['platform_changed']
+            # _LOGGER.info(next_dep)
+            if next_dep['stop_position_number'] is not None:
+                attrs["stop_position_number"] = next_dep['stop_position_number']
         return attrs
 
 class AllDeparturesSensor(MunichTransportBaseSensor):
@@ -311,21 +318,31 @@ class AllDeparturesSensor(MunichTransportBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
         attrs = {ATTR_ATTRIBUTION: ATTRIBUTION}
-        attrs["departures"] = [
-            {
+        attrs["departures"] = []
+        for dep in self.coordinator.data["all"]:
+            departure_info = {
                 "line": dep['line'],
                 "destination": dep['destination'],
                 "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
                 "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
-                "is_late": dep['realtime_departure'] > dep['planned_departure'],
+                "delay": dep['delay'],
                 "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
                 "type": dep['type'],
                 "occupancy": dep['occupancy'],
                 "cancelled": dep['cancelled'],
                 "network": dep['network'],
-            } for dep in self.coordinator.data["all"]
-        ]
-        attrs["total_departures"] = len(self.coordinator.data["all"])
+            }
+
+            # Add new attributes if they exist
+            if dep.get("platform") is not None:
+                departure_info["platform"] = dep['platform']
+                departure_info["platform_changed"] = dep.get('platform_changed', False)
+            if dep.get("stop_position_number") is not None:
+                departure_info["stop_position_number"] = dep['stop_position_number']
+
+            attrs["departures"].append(departure_info)
+
+        attrs["total_departures"] = len(attrs["departures"])
         return attrs
 
 class LineSensor(MunichTransportBaseSensor):
@@ -361,17 +378,25 @@ class LineSensor(MunichTransportBaseSensor):
         attrs = {ATTR_ATTRIBUTION: ATTRIBUTION}
         departures = self.coordinator.data["grouped"].get((self._line, self._destination), [])
         if departures:
-            attrs["departures"] = [
-                {
+            attrs["departures"] = []
+            for dep in departures:
+                departure_info = {
                     "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
                     "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
-                    "is_late": dep['realtime_departure'] > dep['planned_departure'],
+                    "delay": dep['delay'],
                     "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
                     "occupancy": dep['occupancy'],
                     "cancelled": dep['cancelled'],
                     "network": dep['network'],
-                } for dep in departures
-            ]
+                }
+                if dep.get("platform") is not None:
+                    departure_info["platform"] = dep['platform']
+                    departure_info["platform_changed"] = dep.get('platform_changed', False)
+                if dep.get("stop_position_number") is not None:
+                    departure_info["stop_position_number"] = dep['stop_position_number']
+
+                attrs["departures"].append(departure_info)
+
             attrs["type"] = departures[0]['type']
         return attrs
 
