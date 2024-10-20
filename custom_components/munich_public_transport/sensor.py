@@ -275,6 +275,7 @@ class NextDepartureSensor(MunichTransportBaseSensor):
                 "destination": next_dep['destination'],
                 "realtime_departure": datetime.fromtimestamp(next_dep['realtime_departure']).strftime("%H:%M"),
                 "planned_departure": datetime.fromtimestamp(next_dep['planned_departure']).strftime("%H:%M"),
+                "is_late": next_dep['realtime_departure'] > next_dep['planned_departure'],
                 "type": next_dep['type'],
                 "occupancy": next_dep['occupancy'],
                 "cancelled": next_dep['cancelled'],
@@ -316,6 +317,7 @@ class AllDeparturesSensor(MunichTransportBaseSensor):
                 "destination": dep['destination'],
                 "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
                 "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
+                "is_late": dep['realtime_departure'] > dep['planned_departure'],
                 "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
                 "type": dep['type'],
                 "occupancy": dep['occupancy'],
@@ -363,6 +365,7 @@ class LineSensor(MunichTransportBaseSensor):
                 {
                     "realtime_departure": datetime.fromtimestamp(dep['realtime_departure']).strftime("%H:%M"),
                     "planned_departure": datetime.fromtimestamp(dep['planned_departure']).strftime("%H:%M"),
+                    "is_late": dep['realtime_departure'] > dep['planned_departure'],
                     "minutes_until_departure": MunichTransportAPI.calculate_minutes_until(dep['realtime_departure']),
                     "occupancy": dep['occupancy'],
                     "cancelled": dep['cancelled'],
