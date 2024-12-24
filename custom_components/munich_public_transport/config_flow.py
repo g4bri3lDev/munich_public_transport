@@ -86,15 +86,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the station selection step."""
         if user_input is None:
             station_names = [station["name"] for station in self.stations]
+            station_names_new = station_options = [
+                {"value": station["id"], "label": f"{station['name']}, {station['place']}"}
+                for station in self.stations]
             return self.async_show_form(
                 step_id="select_station",
                 data_schema=vol.Schema({
-                    vol.Required("station"): vol.In(station_names),
+                     vol.Required("station"): selector.SelectSelector({"options": station_names_new})
                 }),
             )
 
         self.selected_station = next(
-            station for station in self.stations if station["name"] == user_input["station"]
+            station for station in self.stations if station["id"] == user_input["station"]
         )
         try:
             self.departures = await MunichTransportAPI.fetch_departures(self.selected_station["id"])

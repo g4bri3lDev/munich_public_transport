@@ -63,7 +63,7 @@ class MunichTransportAPI:
     async def fetch_departures(station_id: str, limit: int = 50) -> List[Dict[str, Any]]:
         """Fetch departures for a given station ID."""
         try:
-            data = await MunichTransportAPI._make_request(f"{MunichTransportAPI.BASE_URL}/departures", params={"globalId": station_id, "limit": limit})
+            data = await MunichTransportAPI._make_request(f"{MunichTransportAPI.BASE_URL}/departures", params={"globalId": station_id, "limit": limit, "transportTypes": "UBAHN,REGIONAL_BUS,BUS,TRAM,SBAHN"})
             departures = [
                 {
                     "line": dep["label"],
