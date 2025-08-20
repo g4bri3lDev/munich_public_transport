@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .api import MunichTransportAPI
+from .api import MunichTransportAPI, RateLimitError
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
@@ -95,6 +95,15 @@ async def async_setup_entry(
                 "grouped": grouped_departures,
                 "next": all_filtered_departures[0] if all_filtered_departures else None
             }
+        except RateLimitError as err:
+            _LOGGER.warning(f"Rate limit encountered for station {station_name}: {err}")
+            # Return empty data, the API will use cached data if available
+            # This prevents the coordinator from marking the update as failed
+            return {
+                "all": [],
+                "grouped": {},
+                "next": None
+            }
         except Exception as err:
             _LOGGER.error(f"Error communicating with API: {err}", exc_info=True)
             return {
@@ -110,6 +119,10 @@ async def async_setup_entry(
             messages = await MunichTransportAPI.fetch_messages()
             _LOGGER.debug(f"Fetched {len(messages)} messages")
             return {"messages": messages}
+        except RateLimitError as err:
+            _LOGGER.warning(f"Rate limit encountered for messages: {err}")
+            # Return empty data, the API will use cached data if available
+            return {"messages": []}
         except Exception as err:
             _LOGGER.error(f"Error fetching messages: {err}", exc_info=True)
             return {"messages": []}
