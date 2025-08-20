@@ -97,6 +97,24 @@ You can customize the integration's behavior through the Options flow:
 - For persistent issues, check the Home Assistant logs for more detailed error messages.
 - If you're having trouble with the integration, try increasing the scan interval to reduce the load on the API.
 
+### Rate Limiting
+
+This integration includes robust rate limiting handling to ensure reliable operation even when the MVG API enforces usage limits:
+
+- **Automatic Detection**: Detects HTTP 429 (Too Many Requests) and related HTTP 503 responses
+- **Smart Retry**: Uses exponential backoff with configurable retry delays (2s, 4s, 8s, up to 5 minutes)
+- **Response Caching**: Caches successful API responses for 15 minutes to serve during rate limit periods
+- **Graceful Degradation**: Returns cached data when available, or empty data gracefully (no error states)
+- **Retry-After Support**: Respects API-provided retry-after headers when available
+
+If you see rate limiting warnings in your logs, the integration will automatically handle the situation. Consider increasing your scan interval in the integration options to reduce API load.
+
+### Common Issues
+
+- **"Rate limit exceeded" warnings**: Normal behavior when API limits are hit. The integration will use cached data and retry automatically.
+- **Empty sensor data**: May occur temporarily during rate limiting. Data will be restored once rate limits are lifted.
+- **High API load**: Reduce scan interval or limit the number of configured stations to decrease API usage.
+
 ## Contributing
 
 Contributions to this project are welcome! Please fork the repository and submit a pull request with your improvements. For major changes, please open an issue first to discuss what you would like to change.
