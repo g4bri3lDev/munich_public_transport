@@ -1,85 +1,133 @@
 {
+  "title": "Munich Public Transport",
   "config": {
     "step": {
       "user": {
-        "title": "Station suchen",
-        "description": "{query_instructions}",
+        "title": "Haltestelle hinzufügen",
+        "description": "Suche nach einer Haltestelle im Münchner Nahverkehr.",
         "data": {
-          "search_query": "Suchbegriff"
+          "query": "Haltestellensuche"
         }
       },
       "select_station": {
-        "title": "Station auswählen",
-        "description": "Station aus den Suchergebnissen auswählen",
+        "title": "Haltestelle auswählen",
         "data": {
-          "station": "Station"
-        }
-      },
-      "select_lines": {
-        "title": "Linien auswählen",
-        "description": "{instructions}",
-        "data": {
-          "lines": "Linien"
+          "selected_station": "Haltestelle"
         }
       },
       "select_directions": {
-        "title": "Richtungen auswählen",
-        "description": "Zu überwachende Richtungen auswählen.",
-        "data": {
-          "directions": "Richtungen"
-        }
-      },
-      "other_options": {
-        "title": "Weitere Optionen",
-        "description": "Anzahl der Abfahrten und das Aktualisierungsintervall konfigurieren",
-        "data": {
-          "departure_count": "Anzahl der Abfahrten",
-          "scan_interval": "Aktualisierungsintervall"
+        "title": "Linien und Richtungen auswählen",
+        "description": "Wähle die Linien- und Richtungspaare aus, die Home Assistant als Sensoren anlegen soll.",
+        "data": {},
+        "sections": {
+          "bus": {
+            "name": "Bus",
+            "data": {
+              "direction_option_ids_bus": "Linien und Richtungen"
+            }
+          },
+          "night_line": {
+            "name": "Nachtbus",
+            "data": {
+              "direction_option_ids_night_line": "Linien und Richtungen"
+            }
+          },
+          "regional_bus": {
+            "name": "Regionalbus",
+            "data": {
+              "direction_option_ids_regional_bus": "Linien und Richtungen"
+            }
+          },
+          "replacement_service": {
+            "name": "Ersatzverkehr",
+            "data": {
+              "direction_option_ids_replacement_service": "Linien und Richtungen"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Linien und Richtungen"
+            }
+          },
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Linien und Richtungen"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Linien und Richtungen"
+            }
+          }
         }
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zur MVG-API fehlgeschlagen",
-      "invalid_auth": "Ungültige Authentifizierung",
-      "unknown": "Unerwarteter Fehler",
-      "no_stations_found": "Keine Stationen gefunden, die der Suchanfrage entsprechen"
+      "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden.",
+      "invalid_station": "Die ausgewählte Haltestelle enthält nicht die erwarteten Metadaten.",
+      "no_direction_options": "Für diese Haltestelle wurden keine auswählbaren Linien- und Richtungspaare gefunden.",
+      "no_stations_found": "Es wurden keine passenden Haltestellen gefunden."
     },
     "abort": {
-      "already_configured": "Diese Station ist bereits konfiguriert"
+      "already_configured": "Diese Haltestelle ist bereits konfiguriert."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Linien aktualisieren",
-        "data": {
-          "lines": "Linien"
-        }
-      },
-      "directions": {
-        "title": "Richtungen aktualisieren",
-        "description": "Zu überwachende Richtungen auswählen.",
-        "data": {
-          "directions": "Richtungen"
-        }
-      },
-      "other_options": {
-        "title": "Weitere Optionen aktualisieren",
-        "data": {
-          "departure_count": "Abfahrtsanzahl",
-          "scan_interval": "Aktualisierungsintervall"
+        "title": "Linien und Richtungen aktualisieren",
+        "data": {},
+        "sections": {
+          "bus": {
+            "name": "Bus",
+            "data": {
+              "direction_option_ids_bus": "Linien und Richtungen"
+            }
+          },
+          "night_line": {
+            "name": "Nachtbus",
+            "data": {
+              "direction_option_ids_night_line": "Linien und Richtungen"
+            }
+          },
+          "regional_bus": {
+            "name": "Regionalbus",
+            "data": {
+              "direction_option_ids_regional_bus": "Linien und Richtungen"
+            }
+          },
+          "replacement_service": {
+            "name": "Ersatzverkehr",
+            "data": {
+              "direction_option_ids_replacement_service": "Linien und Richtungen"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Linien und Richtungen"
+            }
+          },
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Linien und Richtungen"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Linien und Richtungen"
+            }
+          }
         }
       }
-    }
-  },
-  "entity": {
-    "sensor": {
-      "next_departure": {
-        "name": "Nächste Abfahrt"
-      },
-      "upcoming_departures": {
-        "name": "Kommende Abfahrten"
-      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden."
     }
   }
 }

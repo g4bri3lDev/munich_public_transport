@@ -1,85 +1,133 @@
 {
+  "title": "Munich Public Transport",
   "config": {
     "step": {
       "user": {
-        "title": "Search for a Station",
-        "description": "{query_instructions}",
+        "title": "Add station",
+        "description": "Search for a Munich public transport station.",
         "data": {
-          "search_query": "Search Query"
+          "query": "Station search"
         }
       },
       "select_station": {
-        "title": "Select a Station",
-        "description": "Choose a station from the search results",
+        "title": "Select station",
         "data": {
-          "station": "Station"
-        }
-      },
-      "select_lines": {
-        "title": "Select Lines",
-        "description": "{instructions}",
-        "data": {
-          "lines": "Lines"
+          "selected_station": "Station"
         }
       },
       "select_directions": {
-        "title": "Select Directions",
-        "description": "Select the directions to track.",
-        "data": {
-          "directions": "Directions"
-        }
-      },
-      "other_options": {
-        "title": "Additional Options",
-        "description": "Configure departure count and update interval",
-        "data": {
-          "departure_count": "Departure Count",
-          "scan_interval": "Update Interval"
+        "title": "Select lines and directions",
+        "description": "Choose the line and direction pairings Home Assistant should expose as sensors.",
+        "data": {},
+        "sections": {
+          "bus": {
+            "name": "Bus",
+            "data": {
+              "direction_option_ids_bus": "Lines and directions"
+            }
+          },
+          "night_line": {
+            "name": "Night bus",
+            "data": {
+              "direction_option_ids_night_line": "Lines and directions"
+            }
+          },
+          "regional_bus": {
+            "name": "Regional bus",
+            "data": {
+              "direction_option_ids_regional_bus": "Lines and directions"
+            }
+          },
+          "replacement_service": {
+            "name": "Replacement service",
+            "data": {
+              "direction_option_ids_replacement_service": "Lines and directions"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Lines and directions"
+            }
+          },
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Lines and directions"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Lines and directions"
+            }
+          }
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to the MVG API",
-      "invalid_auth": "Invalid authentication",
-      "unknown": "Unexpected error",
-      "no_stations_found": "No stations found matching the search query"
+      "cannot_connect": "Could not connect to MVG.",
+      "invalid_station": "The selected station did not include the expected metadata.",
+      "no_direction_options": "No selectable line and direction pairings were found for this station.",
+      "no_stations_found": "No matching stations were found."
     },
     "abort": {
-      "already_configured": "This station is already configured"
+      "already_configured": "This station is already configured."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Update Lines",
-        "data": {
-          "lines": "Lines"
-        }
-      },
-      "directions": {
-        "title": "Update Directions",
-        "description": "Select the directions to track.",
-        "data": {
-          "directions": "Directions"
-        }
-      },
-      "other_options": {
-        "title": "Update Additional Options",
-        "data": {
-          "departure_count": "Departure Count",
-          "scan_interval": "Update Interval"
+        "title": "Update lines and directions",
+        "data": {},
+        "sections": {
+          "bus": {
+            "name": "Bus",
+            "data": {
+              "direction_option_ids_bus": "Lines and directions"
+            }
+          },
+          "night_line": {
+            "name": "Night bus",
+            "data": {
+              "direction_option_ids_night_line": "Lines and directions"
+            }
+          },
+          "regional_bus": {
+            "name": "Regional bus",
+            "data": {
+              "direction_option_ids_regional_bus": "Lines and directions"
+            }
+          },
+          "replacement_service": {
+            "name": "Replacement service",
+            "data": {
+              "direction_option_ids_replacement_service": "Lines and directions"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Lines and directions"
+            }
+          },
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Lines and directions"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Lines and directions"
+            }
+          }
         }
       }
-    }
-  },
-  "entity": {
-    "sensor": {
-      "next_departure": {
-        "name": "Next Departure"
-      },
-      "upcoming_departures": {
-        "name": "Upcoming Departures"
-      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to MVG."
     }
   }
 }
