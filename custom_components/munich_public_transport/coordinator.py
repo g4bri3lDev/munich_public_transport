@@ -10,9 +10,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import ApiError, MunichTransportError
-from munich_transport.models import Departure
+from munich_transport.models import Departure, Disruption
 
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import DEFAULT_MESSAGES_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,6 +49,38 @@ class MunichTransportDepartureCoordinator(DataUpdateCoordinator[list[Departure]]
 
         try:
             return await self._client.departures(self._station_global_id)
+        except ApiError as err:
+            if err.transient:
+                raise _transient_update_failed(err) from err
+            raise UpdateFailed(f"MVG returned HTTP {err.status}") from err
+        except MunichTransportError as err:
+            raise UpdateFailed(f"Error communicating with MVG: {err}") from err
+
+
+class MunichTransportMessagesCoordinator(DataUpdateCoordinator[list[Disruption]]):
+    """Fetch MVG service messages once for the integration."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: MunichTransportClient,
+    ) -> None:
+        """Initialize the messages coordinator."""
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}-messages",
+            update_interval=DEFAULT_MESSAGES_SCAN_INTERVAL,
+            always_update=False,
+        )
+        self._client = client
+
+    async def _async_update_data(self) -> list[Disruption]:
+        """Fetch MVG service messages."""
+
+        try:
+            return await self._client.messages()
         except ApiError as err:
             if err.transient:
                 raise _transient_update_failed(err) from err

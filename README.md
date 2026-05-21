@@ -33,11 +33,14 @@ one station are updated from the same API response.
 - Night bus, bus, tram, U-Bahn, S-Bahn, regional bus, and replacement service
   schedule groups when available for a station.
 - One shared live departures request per station refresh.
+- One shared MVG service messages request for all configured stations.
 - Retry handling for temporary MVG API errors such as `429`, `502`, `503`, and
   `504`.
 - Legacy config-entry migration from the old integration schema.
 
 ## Installation
+
+Requires Home Assistant `2024.7.0` or newer.
 
 ### HACS
 
@@ -70,6 +73,7 @@ Each configured station creates:
 - **Next Departure**: minutes until the next selected departure.
 - **All Departures**: minutes until the next selected departure, with upcoming
   departures in the `departures` attribute.
+- **Messages**: number of relevant MVG service messages.
 - **Line/direction sensors**: one sensor for each selected pairing.
 
 Line/direction sensors use the normal catalog terminus for stable entity IDs,
@@ -104,6 +108,14 @@ Line/direction sensors also expose selection metadata:
 - `schedule_kind`
 - `departures`
 
+The **Messages** sensor exposes a `messages` attribute. Each message includes:
+
+- `title`
+- `description`
+- `lines`
+- `type`
+- `validity`
+
 ## Screenshots
 
 ### Selecting a station from the search results
@@ -126,6 +138,10 @@ Line/direction sensors also expose selection metadata:
 
 ![A specific line and direction](screenshots/line.png)
 
+### Messages for a station
+
+![Messages for a station](screenshots/messages.png)
+
 ## Troubleshooting
 
 - If setup cannot find a station, try a shorter or more specific station name.
@@ -134,6 +150,8 @@ Line/direction sensors also expose selection metadata:
 - Temporary MVG API failures are handled by the station coordinator. During an
   outage, entities may become temporarily unavailable instead of logging one
   error per sensor.
+- MVG service messages are fetched by one shared coordinator and then filtered
+  per station by affected station or selected lines.
 - If a migrated station does not select the expected directions, open the
   integration options and reselect the line/direction pairings.
 

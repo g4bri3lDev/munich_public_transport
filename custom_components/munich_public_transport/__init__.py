@@ -30,7 +30,10 @@ from .const import (
     OLD_CONF_STATION_NAME,
     PLATFORMS,
 )
-from .coordinator import MunichTransportDepartureCoordinator
+from .coordinator import (
+    MunichTransportDepartureCoordinator,
+    MunichTransportMessagesCoordinator,
+)
 from .models import (
     DirectionSelection,
     direction_selection_from_option,
@@ -38,6 +41,7 @@ from .models import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+_MESSAGES_COORDINATOR_KEY = "messages_coordinator"
 
 _DIRECTION_SUFFIX_TOKENS = {
     "bahnhof",
@@ -54,6 +58,7 @@ class MunichTransportRuntimeData:
 
     client: MunichTransportClient
     coordinator: MunichTransportDepartureCoordinator
+    messages_coordinator: MunichTransportMessagesCoordinator
     direction_selections: tuple[DirectionSelection, ...]
 
 
@@ -125,6 +130,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = MunichTransportClient(AiohttpTransport(session=session))
 
     direction_selections = await _load_direction_selections(client, entry)
+    messages_coordinator = hass.data.setdefault(DOMAIN, {}).get(
+        _MESSAGES_COORDINATOR_KEY,
+    )
+    if messages_coordinator is None:
+        messages_coordinator = MunichTransportMessagesCoordinator(hass, client)
+        await messages_coordinator.async_refresh()
+        hass.data[DOMAIN][_MESSAGES_COORDINATOR_KEY] = messages_coordinator
+
     coordinator = MunichTransportDepartureCoordinator(
         hass=hass,
         config_entry=entry,
@@ -137,6 +150,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = MunichTransportRuntimeData(
         client=client,
         coordinator=coordinator,
+        messages_coordinator=messages_coordinator,
         direction_selections=direction_selections,
     )
 
@@ -151,6 +165,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
+        if not any(
+            isinstance(key, str) and key != _MESSAGES_COORDINATOR_KEY
+            for key in hass.data[DOMAIN]
+        ):
+            hass.data[DOMAIN].pop(_MESSAGES_COORDINATOR_KEY, None)
         if not hass.data[DOMAIN]:
             hass.data.pop(DOMAIN)
     return unload_ok
@@ -201,16 +220,9 @@ async def _migrate_legacy_registries(
         old_station_name=old_station_name,
         direction_options=direction_options,
     )
-    removed_unique_ids = {
-        f"{entry.entry_id}_{old_station_name}_messages",
-    }
 
     @callback
     def migrate_entity(entity_entry: er.RegistryEntry) -> dict[str, str] | None:
-        if entity_entry.unique_id in removed_unique_ids:
-            entity_registry.async_remove(entity_entry.entity_id)
-            return None
-
         new_unique_id = unique_id_map.get(entity_entry.unique_id)
         if new_unique_id is None:
             return None
@@ -244,6 +256,9 @@ def _legacy_entity_unique_id_map(
         ),
         f"{entry.entry_id}_{old_station_name}_all_departures": (
             f"{entry.entry_id}_all_departures"
+        ),
+        f"{entry.entry_id}_{old_station_name}_messages": (
+            f"{entry.entry_id}_messages"
         ),
     }
 

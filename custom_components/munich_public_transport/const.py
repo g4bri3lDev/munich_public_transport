@@ -21,16 +21,20 @@ OLD_CONF_LINES = "lines"
 OLD_CONF_DIRECTIONS = "directions"
 
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=45)
+DEFAULT_MESSAGES_SCAN_INTERVAL = timedelta(minutes=30)
 DEFAULT_DEPARTURE_LIMIT = 10
 
 ATTR_CANCELLED = "cancelled"
 ATTR_DELAY = "delay"
+ATTR_DESCRIPTION = "description"
 ATTR_DEPARTURES = "departures"
 ATTR_DESTINATION = "destination"
 ATTR_DIRECTION_KEY = "direction_key"
 ATTR_DIRECTION_VARIANTS = "direction_variants"
 ATTR_IS_LATE = "is_late"
 ATTR_LINE = "line"
+ATTR_LINES = "lines"
+ATTR_MESSAGES = "messages"
 ATTR_MINUTES_UNTIL_DEPARTURE = "minutes_until_departure"
 ATTR_NETWORK = "network"
 ATTR_NORMAL_TERMINUS = "normal_terminus"
@@ -43,6 +47,8 @@ ATTR_REALTIME_DEPARTURE = "realtime_departure"
 ATTR_SCHEDULE_KIND = "schedule_kind"
 ATTR_TOTAL_DEPARTURES = "total_departures"
 ATTR_TRANSPORT_TYPE = "type"
+ATTR_TITLE = "title"
+ATTR_VALIDITY = "validity"
 
 ENTRY_DATA_KEYS = {
     CONF_NAME,

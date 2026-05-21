@@ -18,17 +18,20 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from munich_transport.models import Departure
+from munich_transport.models import Departure, Disruption
 
 from .const import (
     ATTR_CANCELLED,
     ATTR_DELAY,
     ATTR_DEPARTURES,
+    ATTR_DESCRIPTION,
     ATTR_DESTINATION,
     ATTR_DIRECTION_KEY,
     ATTR_DIRECTION_VARIANTS,
     ATTR_IS_LATE,
     ATTR_LINE,
+    ATTR_LINES,
+    ATTR_MESSAGES,
     ATTR_MINUTES_UNTIL_DEPARTURE,
     ATTR_NETWORK,
     ATTR_NORMAL_TERMINUS,
@@ -39,14 +42,19 @@ from .const import (
     ATTR_REALTIME,
     ATTR_REALTIME_DEPARTURE,
     ATTR_SCHEDULE_KIND,
+    ATTR_TITLE,
     ATTR_TOTAL_DEPARTURES,
     ATTR_TRANSPORT_TYPE,
+    ATTR_VALIDITY,
     CONF_NAME,
     CONF_STATION_GLOBAL_ID,
     DEFAULT_DEPARTURE_LIMIT,
     DOMAIN,
 )
-from .coordinator import MunichTransportDepartureCoordinator
+from .coordinator import (
+    MunichTransportDepartureCoordinator,
+    MunichTransportMessagesCoordinator,
+)
 from .models import DirectionSelection
 
 ATTRIBUTION = "Data provided by MVG"
@@ -79,6 +87,11 @@ async def async_setup_entry(
     entities: list[SensorEntity] = [
         MunichTransportNextDepartureSensor(entry, coordinator, selections),
         MunichTransportAllDeparturesSensor(entry, coordinator, selections),
+        MunichTransportMessagesSensor(
+            entry,
+            runtime_data.messages_coordinator,
+            selections,
+        ),
     ]
     entities.extend(
         MunichTransportLineDepartureSensor(entry, coordinator, selection)
@@ -331,6 +344,79 @@ class MunichTransportLineDepartureSensor(MunichTransportBaseSensor):
         return f"{self._selection.line_label} → {departure.destination}"
 
 
+class MunichTransportMessagesSensor(
+    CoordinatorEntity[MunichTransportMessagesCoordinator],
+    SensorEntity,
+):
+    """Sensor showing relevant MVG service messages for a station."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:message-alert"
+    _attr_name = "Messages"
+    _attr_native_unit_of_measurement = "messages"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        entry: ConfigEntry,
+        coordinator: MunichTransportMessagesCoordinator,
+        selections: tuple[DirectionSelection, ...],
+    ) -> None:
+        """Initialize the messages sensor."""
+
+        super().__init__(coordinator)
+        self._entry = entry
+        self._selected_lines = {selection.line_label for selection in selections}
+        self._attr_unique_id = f"{entry.entry_id}_messages"
+        self._refresh_extra_state_attributes()
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the station device."""
+
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.data[CONF_STATION_GLOBAL_ID])},
+            name=self._entry.data[CONF_NAME],
+            manufacturer="MVG",
+            model="Public Transport Station",
+        )
+
+    @property
+    def native_value(self) -> int:
+        """Return the number of relevant messages."""
+
+        return len(self._messages)
+
+    def _handle_coordinator_update(self) -> None:
+        """Update cached attributes before writing state."""
+
+        self._refresh_extra_state_attributes()
+        super()._handle_coordinator_update()
+
+    def _refresh_extra_state_attributes(self) -> None:
+        self._attr_extra_state_attributes = {
+            ATTR_ATTRIBUTION: ATTRIBUTION,
+            ATTR_MESSAGES: [
+                _message_attributes(message)
+                for message in self._messages
+            ],
+        }
+
+    @property
+    def _messages(self) -> list[Disruption]:
+        messages = self.coordinator.data or []
+        return [
+            message
+            for message in messages
+            if _message_is_active(message)
+            and _message_matches_station_or_lines(
+                message,
+                station_global_id=self._entry.data[CONF_STATION_GLOBAL_ID],
+                selected_lines=self._selected_lines,
+            )
+        ]
+
+
 def _matching_departures(
     departures: list[Departure],
     selections: tuple[DirectionSelection, ...],
@@ -392,3 +478,71 @@ def _minutes_until(value: datetime) -> int:
 
 def _format_time(value: datetime) -> str:
     return dt_util.as_local(value).strftime("%H:%M")
+
+
+def _message_matches_station_or_lines(
+    message: Disruption,
+    *,
+    station_global_id: str,
+    selected_lines: set[str],
+) -> bool:
+    if message.station_global_ids:
+        return station_global_id in message.station_global_ids
+
+    if not message.lines:
+        return True
+
+    return any(line.label in selected_lines for line in message.lines)
+
+
+def _message_is_active(message: Disruption) -> bool:
+    if message.valid_from is not None:
+        now = dt_util.now(message.valid_from.tzinfo)
+        if message.valid_from > now:
+            return False
+
+    if message.valid_to is not None:
+        now = dt_util.now(message.valid_to.tzinfo)
+        if message.valid_to < now:
+            return False
+
+    return True
+
+
+def _message_attributes(message: Disruption) -> dict[str, Any]:
+    return {
+        ATTR_TITLE: message.title,
+        ATTR_DESCRIPTION: message.description_html,
+        ATTR_LINES: _message_line_labels(message),
+        ATTR_TRANSPORT_TYPE: message.kind,
+        ATTR_VALIDITY: _format_message_validity(message),
+    }
+
+
+def _message_line_labels(message: Disruption) -> list[str]:
+    if not message.lines:
+        return ["All lines"]
+    return sorted({line.label for line in message.lines})
+
+
+def _format_message_validity(message: Disruption) -> str:
+    valid_from = message.valid_from
+    valid_to = message.valid_to
+
+    if valid_from is not None and valid_to is not None:
+        local_from = dt_util.as_local(valid_from)
+        local_to = dt_util.as_local(valid_to)
+        if local_from.date() == local_to.date():
+            return (
+                f"{local_from:%d.%m.%Y} "
+                f"{local_from:%H:%M} - {local_to:%H:%M}"
+            )
+        return f"{local_from:%d.%m.%Y %H:%M} - {local_to:%d.%m.%Y %H:%M}"
+
+    if valid_from is not None:
+        return f"From {dt_util.as_local(valid_from):%d.%m.%Y %H:%M}"
+
+    if valid_to is not None:
+        return f"Until {dt_util.as_local(valid_to):%d.%m.%Y %H:%M}"
+
+    return "No specific time"
