@@ -15,11 +15,16 @@ CONF_STATION_ABBREVIATION = "station_abbreviation"
 CONF_STATION_PLACE = "station_place"
 CONF_DIRECTION_OPTION_IDS = "direction_option_ids"
 
+OLD_CONF_STATION_ID = "station_id"
+OLD_CONF_STATION_NAME = "station_name"
+OLD_CONF_LINES = "lines"
+OLD_CONF_DIRECTIONS = "directions"
+
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=45)
 DEFAULT_DEPARTURE_LIMIT = 10
 
 ATTR_CANCELLED = "cancelled"
-ATTR_DELAY_MINUTES = "delay_minutes"
+ATTR_DELAY = "delay"
 ATTR_DEPARTURES = "departures"
 ATTR_DESTINATION = "destination"
 ATTR_DIRECTION_KEY = "direction_key"

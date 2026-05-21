@@ -22,7 +22,7 @@ from munich_transport.models import Departure
 
 from .const import (
     ATTR_CANCELLED,
-    ATTR_DELAY_MINUTES,
+    ATTR_DELAY,
     ATTR_DEPARTURES,
     ATTR_DESTINATION,
     ATTR_DIRECTION_KEY,
@@ -359,9 +359,12 @@ def _matches_selection(
 
 def _departure_attributes(departure: Departure) -> dict[str, Any]:
     minutes_until = _minutes_until(departure.realtime_departure)
+    delay_minutes = (
+        departure.delay_minutes if departure.delay_minutes is not None else 0
+    )
     return {
         ATTR_CANCELLED: departure.cancelled,
-        ATTR_DELAY_MINUTES: departure.delay_minutes,
+        ATTR_DELAY: delay_minutes,
         ATTR_DESTINATION: departure.destination,
         ATTR_DIRECTION_KEY: departure.direction_key,
         ATTR_IS_LATE: departure.realtime_departure > departure.planned_departure,

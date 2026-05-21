@@ -48,7 +48,7 @@ _SECTION_LABELS = {
 class MunichTransportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a Munich Public Transport config flow."""
 
-    VERSION = 1
+    VERSION = 2
 
     _locations: dict[str, Location]
     _station: Station | None = None
