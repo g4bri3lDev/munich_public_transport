@@ -2,546 +2,196 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import override
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ATTRIBUTION, UnitOfTime
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
-from munich_transport.models import Departure, Disruption
+from munich_transport.models import Departure, StationDirectionOption
+from munich_transport.schedules import select_departures
 
-from .const import (
-    ATTR_CANCELLED,
-    ATTR_DELAY,
-    ATTR_DEPARTURES,
-    ATTR_DESCRIPTION,
-    ATTR_DESTINATION,
-    ATTR_DIRECTION_KEY,
-    ATTR_DIRECTION_VARIANTS,
-    ATTR_IS_LATE,
-    ATTR_LINE,
-    ATTR_LINES,
-    ATTR_MESSAGES,
-    ATTR_MINUTES_UNTIL_DEPARTURE,
-    ATTR_NETWORK,
-    ATTR_NORMAL_TERMINUS,
-    ATTR_OCCUPANCY,
-    ATTR_PLANNED_DEPARTURE,
-    ATTR_PLATFORM,
-    ATTR_PLATFORM_CHANGED,
-    ATTR_REALTIME,
-    ATTR_REALTIME_DEPARTURE,
-    ATTR_SCHEDULE_KIND,
-    ATTR_TITLE,
-    ATTR_TOTAL_DEPARTURES,
-    ATTR_TRANSPORT_TYPE,
-    ATTR_VALIDITY,
-    CONF_NAME,
-    CONF_STATION_GLOBAL_ID,
-    DEFAULT_DEPARTURE_LIMIT,
-    DOMAIN,
-)
 from .coordinator import (
+    MunichTransportConfigEntry,
     MunichTransportDepartureCoordinator,
     MunichTransportMessagesCoordinator,
+    StationData,
 )
-from .selection import DirectionSelection
+from .entity import MunichTransportEntity
 
-ATTRIBUTION = "Data provided by MVG"
-DEFAULT_ICON = "mdi:train-car"
-ALL_DEPARTURES_ICON = "mdi:train-car-multiple"
+type StateValue = datetime | str | int | None
 
-TRANSPORT_TYPE_ICONS = {
-    "BAHN": "mdi:train",
-    "BUS": "mdi:bus",
-    "NIGHT_LINE": "mdi:bus-clock",
-    "REGIONAL_BUS": "mdi:bus",
-    "SBAHN": "mdi:train",
-    "SEV": "mdi:bus-alert",
-    "TRAM": "mdi:tram",
-    "UBAHN": "mdi:subway",
-}
+
+@dataclass(frozen=True, kw_only=True)
+class DepartureSensorEntityDescription(SensorEntityDescription):
+    """Describes a sensor derived from the upcoming departures."""
+
+    value_fn: Callable[[list[Departure]], StateValue]
+
+
+def _first[T](departures: list[Departure], fn: Callable[[Departure], T]) -> T | None:
+    return fn(departures[0]) if departures else None
+
+
+DIRECTION_SENSORS: tuple[DepartureSensorEntityDescription, ...] = (
+    DepartureSensorEntityDescription(
+        key="departure",
+        translation_key="departure",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda departures: _first(
+            departures, lambda departure: departure.realtime_departure
+        ),
+    ),
+    DepartureSensorEntityDescription(
+        key="destination",
+        translation_key="destination",
+        value_fn=lambda departures: _first(
+            departures, lambda departure: departure.destination
+        ),
+    ),
+    DepartureSensorEntityDescription(
+        key="delay",
+        translation_key="delay",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda departures: _first(
+            departures, lambda departure: departure.delay_minutes or 0
+        ),
+    ),
+    DepartureSensorEntityDescription(
+        key="following_departure",
+        translation_key="following_departure",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        value_fn=lambda departures: (
+            departures[1].realtime_departure if len(departures) > 1 else None
+        ),
+    ),
+    DepartureSensorEntityDescription(
+        key="platform",
+        translation_key="platform",
+        entity_registry_enabled_default=False,
+        value_fn=lambda departures: _first(
+            departures,
+            lambda departure: (
+                None if departure.platform is None else str(departure.platform)
+            ),
+        ),
+    ),
+)
+
+NEXT_DEPARTURE = DepartureSensorEntityDescription(
+    key="next_departure",
+    translation_key="next_departure",
+    device_class=SensorDeviceClass.TIMESTAMP,
+    value_fn=lambda departures: _first(
+        departures, lambda departure: departure.realtime_departure
+    ),
+)
+
+DISRUPTIONS = SensorEntityDescription(
+    key="disruptions",
+    translation_key="disruptions",
+)
+
+
+# Coordinators centralize the updates.
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    entry: MunichTransportConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up departure sensors for a config entry."""
+    """Set up departure sensors for every station."""
 
-    runtime_data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = runtime_data.coordinator
-    selections = runtime_data.direction_selections
-
-    entities: list[SensorEntity] = [
-        MunichTransportNextDepartureSensor(entry, coordinator, selections),
-        MunichTransportAllDeparturesSensor(entry, coordinator, selections),
-        MunichTransportMessagesSensor(
-            entry,
-            runtime_data.messages_coordinator,
-            selections,
-        ),
-    ]
-    entities.extend(
-        MunichTransportLineDepartureSensor(entry, coordinator, selection)
-        for selection in selections
-    )
-    async_add_entities(entities)
+    data = entry.runtime_data
+    for station in data.stations.values():
+        entities: list[SensorEntity] = [
+            DepartureSensor(station, NEXT_DEPARTURE),
+            DisruptionsSensor(data.messages_coordinator, station),
+        ]
+        entities.extend(
+            DepartureSensor(station, description, direction)
+            for direction in station.directions
+            for description in DIRECTION_SENSORS
+        )
+        async_add_entities(entities, config_subentry_id=station.subentry_id)
 
 
-class MunichTransportBaseSensor(
+class DepartureSensor(
+    MunichTransportEntity,
     CoordinatorEntity[MunichTransportDepartureCoordinator],
     SensorEntity,
 ):
-    """Base class for station departure sensors."""
+    """A sensor about the upcoming departures of a station or one direction."""
 
-    _attr_device_class = SensorDeviceClass.DURATION
-    _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    entity_description: DepartureSensorEntityDescription
 
     def __init__(
         self,
-        entry: ConfigEntry,
-        coordinator: MunichTransportDepartureCoordinator,
+        station: StationData,
+        description: DepartureSensorEntityDescription,
+        direction: StationDirectionOption | None = None,
     ) -> None:
-        """Initialize the base sensor."""
+        """Initialize the sensor."""
 
-        super().__init__(coordinator)
-        self._entry = entry
-        self._attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
-
-    @property
-    def available(self) -> bool:
-        """Return whether the coordinator currently has usable data."""
-
-        return self.coordinator.last_update_success
+        CoordinatorEntity.__init__(self, station.coordinator)
+        MunichTransportEntity.__init__(self, station, description, direction)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        """Return the station device."""
+    @override
+    def native_value(self) -> StateValue:
+        """Return the value for the next matching departures."""
 
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._entry.data[CONF_STATION_GLOBAL_ID])},
-            name=self._entry.data[CONF_NAME],
-            manufacturer="MVG",
-            model="Public Transport Station",
+        directions = (
+            (self._direction,)
+            if self._direction is not None
+            else self._station.directions
+        )
+        return self.entity_description.value_fn(
+            select_departures(self.coordinator.data or [], directions)
         )
 
-    def _handle_coordinator_update(self) -> None:
-        """Update cached attributes before writing state."""
 
-        self._refresh_extra_state_attributes()
-        super()._handle_coordinator_update()
-
-    def _refresh_extra_state_attributes(self) -> None:
-        self._attr_extra_state_attributes = self._build_extra_state_attributes()
-
-    def _build_extra_state_attributes(self) -> dict[str, Any]:
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
-
-
-class MunichTransportNextDepartureSensor(MunichTransportBaseSensor):
-    """Sensor showing the next selected departure for a station."""
-
-    _attr_name = "Next Departure"
-
-    def __init__(
-        self,
-        entry: ConfigEntry,
-        coordinator: MunichTransportDepartureCoordinator,
-        selections: tuple[DirectionSelection, ...],
-    ) -> None:
-        """Initialize the next departure sensor."""
-
-        super().__init__(entry, coordinator)
-        self._selections = selections
-        self._attr_unique_id = f"{entry.entry_id}_next_departure"
-        self._refresh_extra_state_attributes()
-
-    @property
-    def icon(self) -> str:
-        """Return the icon for the next departure."""
-
-        departure = self._next_departure
-        if departure is None:
-            return DEFAULT_ICON
-        return _departure_icon(departure)
-
-    @property
-    def native_value(self) -> int | None:
-        """Return minutes until the next selected departure."""
-
-        departure = self._next_departure
-        if departure is None:
-            return None
-        return _minutes_until(departure.realtime_departure)
-
-    def _build_extra_state_attributes(self) -> dict[str, Any]:
-        """Return details for the next selected departure."""
-
-        attrs: dict[str, Any] = {ATTR_ATTRIBUTION: ATTRIBUTION}
-        departure = self._next_departure
-        if departure is not None:
-            attrs.update(_departure_attributes(departure))
-        return attrs
-
-    @property
-    def _next_departure(self) -> Departure | None:
-        departures = _matching_departures(self.coordinator.data or [], self._selections)
-        if not departures:
-            return None
-        return departures[0]
-
-
-class MunichTransportAllDeparturesSensor(MunichTransportBaseSensor):
-    """Sensor showing all selected departures for a station."""
-
-    _attr_name = "All Departures"
-
-    def __init__(
-        self,
-        entry: ConfigEntry,
-        coordinator: MunichTransportDepartureCoordinator,
-        selections: tuple[DirectionSelection, ...],
-    ) -> None:
-        """Initialize the all departures sensor."""
-
-        super().__init__(entry, coordinator)
-        self._selections = selections
-        self._attr_unique_id = f"{entry.entry_id}_all_departures"
-        self._refresh_extra_state_attributes()
-
-    @property
-    def icon(self) -> str:
-        """Return the icon for the next selected departure."""
-
-        departures = self._departures
-        if not departures:
-            return ALL_DEPARTURES_ICON
-        return _departure_icon(departures[0])
-
-    @property
-    def native_value(self) -> int | None:
-        """Return minutes until the next selected departure."""
-
-        departures = self._departures
-        if not departures:
-            return None
-        return _minutes_until(departures[0].realtime_departure)
-
-    def _build_extra_state_attributes(self) -> dict[str, Any]:
-        """Return all selected departures."""
-
-        departures = self._departures
-        return {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_DEPARTURES: [
-                _departure_attributes(departure)
-                for departure in departures[:DEFAULT_DEPARTURE_LIMIT]
-            ],
-            ATTR_TOTAL_DEPARTURES: len(departures),
-        }
-
-    @property
-    def _departures(self) -> list[Departure]:
-        return _matching_departures(self.coordinator.data or [], self._selections)
-
-
-class MunichTransportLineDepartureSensor(MunichTransportBaseSensor):
-    """Sensor showing departures for one line/direction pairing."""
-
-    def __init__(
-        self,
-        entry: ConfigEntry,
-        coordinator: MunichTransportDepartureCoordinator,
-        selection: DirectionSelection,
-    ) -> None:
-        """Initialize the line departure sensor."""
-
-        super().__init__(entry, coordinator)
-        self._selection = selection
-        # The entity id is derived from the name at registration, so register
-        # under the stable catalog terminus rather than the live destination,
-        # which may be a short turn.
-        self._attr_name = selection.label
-        self._attr_unique_id = f"{entry.entry_id}_{selection.id}"
-        self._refresh_extra_state_attributes()
-
-    async def async_added_to_hass(self) -> None:
-        """Switch to the live destination once the entity id is assigned."""
-
-        await super().async_added_to_hass()
-        self._attr_name = self._display_label
-
-    def _handle_coordinator_update(self) -> None:
-        """Update the current display name before writing state."""
-
-        self._attr_name = self._display_label
-        super()._handle_coordinator_update()
-
-    @property
-    def icon(self) -> str:
-        """Return the icon for this line."""
-
-        departure = self._next_departure
-        if departure is None:
-            return DEFAULT_ICON
-        return _departure_icon(departure)
-
-    @property
-    def native_value(self) -> int | None:
-        """Return minutes until the next matching departure."""
-
-        departure = self._next_departure
-        if departure is None:
-            return None
-        return _minutes_until(departure.realtime_departure)
-
-    def _build_extra_state_attributes(self) -> dict[str, Any]:
-        """Return departure details for the selected pairing."""
-
-        departures = self._matching_departures
-        next_departure = departures[0] if departures else None
-
-        attributes: dict[str, Any] = {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_LINE: self._selection.line_label,
-            ATTR_DIRECTION_KEY: self._selection.direction_key,
-            ATTR_DIRECTION_VARIANTS: list(self._selection.directions),
-            ATTR_NORMAL_TERMINUS: self._selection.normal_terminus,
-            ATTR_SCHEDULE_KIND: self._selection.schedule_kind,
-            ATTR_DEPARTURES: [
-                _departure_attributes(departure)
-                for departure in departures[:DEFAULT_DEPARTURE_LIMIT]
-            ],
-        }
-        if next_departure is not None:
-            attributes.update(_departure_attributes(next_departure))
-        return attributes
-
-    @property
-    def _next_departure(self) -> Departure | None:
-        departures = self._matching_departures
-        if not departures:
-            return None
-        return departures[0]
-
-    @property
-    def _matching_departures(self) -> list[Departure]:
-        return _matching_departures(self.coordinator.data or [], (self._selection,))
-
-    @property
-    def _display_label(self) -> str:
-        departure = self._next_departure
-        if departure is None:
-            return self._selection.label
-        return f"{self._selection.line_label} → {departure.destination}"
-
-
-class MunichTransportMessagesSensor(
+class DisruptionsSensor(
+    MunichTransportEntity,
     CoordinatorEntity[MunichTransportMessagesCoordinator],
     SensorEntity,
 ):
-    """Sensor showing relevant MVG service messages for a station."""
-
-    _attr_has_entity_name = True
-    _attr_icon = "mdi:message-alert"
-    _attr_name = "Messages"
-    _attr_native_unit_of_measurement = "messages"
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    """Number of active service messages about a station or its lines."""
 
     def __init__(
         self,
-        entry: ConfigEntry,
         coordinator: MunichTransportMessagesCoordinator,
-        selections: tuple[DirectionSelection, ...],
+        station: StationData,
     ) -> None:
-        """Initialize the messages sensor."""
+        """Initialize the sensor."""
 
-        super().__init__(coordinator)
-        self._entry = entry
-        self._selected_lines = {selection.line_label for selection in selections}
-        self._attr_unique_id = f"{entry.entry_id}_messages"
-        self._refresh_extra_state_attributes()
+        CoordinatorEntity.__init__(self, coordinator)
+        MunichTransportEntity.__init__(self, station, DISRUPTIONS)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        """Return the station device."""
-
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._entry.data[CONF_STATION_GLOBAL_ID])},
-            name=self._entry.data[CONF_NAME],
-            manufacturer="MVG",
-            model="Public Transport Station",
-        )
-
-    @property
+    @override
     def native_value(self) -> int:
         """Return the number of relevant messages."""
 
-        return len(self._messages)
-
-    def _handle_coordinator_update(self) -> None:
-        """Update cached attributes before writing state."""
-
-        self._refresh_extra_state_attributes()
-        super()._handle_coordinator_update()
-
-    def _refresh_extra_state_attributes(self) -> None:
-        self._attr_extra_state_attributes = {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_MESSAGES: [_message_attributes(message) for message in self._messages],
-        }
-
-    @property
-    def _messages(self) -> list[Disruption]:
-        messages = self.coordinator.data or []
-        return [
-            message
-            for message in messages
-            if _message_is_active(message)
-            and _message_matches_station_or_lines(
-                message,
-                station_global_id=self._entry.data[CONF_STATION_GLOBAL_ID],
-                selected_lines=self._selected_lines,
-            )
-        ]
-
-
-def _matching_departures(
-    departures: list[Departure],
-    selections: tuple[DirectionSelection, ...],
-) -> list[Departure]:
-    if not selections:
-        return sorted(departures, key=lambda departure: departure.realtime_departure)
-
-    selected = [
-        departure
-        for departure in departures
-        if any(_matches_selection(departure, selection) for selection in selections)
-    ]
-    return sorted(selected, key=lambda departure: departure.realtime_departure)
-
-
-def _matches_selection(
-    departure: Departure,
-    selection: DirectionSelection,
-) -> bool:
-    if departure.line.label != selection.line_label:
-        return False
-    if selection.direction_key is None:
-        return True
-    return departure.direction_key == selection.direction_key
-
-
-def _departure_attributes(departure: Departure) -> dict[str, Any]:
-    minutes_until = _minutes_until(departure.realtime_departure)
-    delay_minutes = (
-        departure.delay_minutes if departure.delay_minutes is not None else 0
-    )
-    return {
-        ATTR_CANCELLED: departure.cancelled,
-        ATTR_DELAY: delay_minutes,
-        ATTR_DESTINATION: departure.destination,
-        ATTR_DIRECTION_KEY: departure.direction_key,
-        ATTR_IS_LATE: departure.realtime_departure > departure.planned_departure,
-        ATTR_LINE: departure.line.label,
-        ATTR_MINUTES_UNTIL_DEPARTURE: minutes_until,
-        ATTR_NETWORK: departure.line.network,
-        ATTR_OCCUPANCY: departure.occupancy,
-        ATTR_PLATFORM: departure.platform,
-        ATTR_PLATFORM_CHANGED: departure.platform_changed,
-        ATTR_PLANNED_DEPARTURE: _format_time(departure.planned_departure),
-        ATTR_REALTIME: departure.realtime,
-        ATTR_REALTIME_DEPARTURE: _format_time(departure.realtime_departure),
-        ATTR_TRANSPORT_TYPE: departure.line.transport_type,
-    }
-
-
-def _departure_icon(departure: Departure) -> str:
-    return TRANSPORT_TYPE_ICONS.get(departure.line.transport_type, DEFAULT_ICON)
-
-
-def _minutes_until(value: datetime) -> int:
-    delta = value - dt_util.now(value.tzinfo)
-    return max(round(delta.total_seconds() / 60), 0)
-
-
-def _format_time(value: datetime) -> str:
-    return dt_util.as_local(value).strftime("%H:%M")
-
-
-def _message_matches_station_or_lines(
-    message: Disruption,
-    *,
-    station_global_id: str,
-    selected_lines: set[str],
-) -> bool:
-    if message.station_global_ids:
-        return station_global_id in message.station_global_ids
-
-    if not message.lines:
-        return True
-
-    return any(line.label in selected_lines for line in message.lines)
-
-
-def _message_is_active(message: Disruption) -> bool:
-    if message.valid_from is not None:
-        now = dt_util.now(message.valid_from.tzinfo)
-        if message.valid_from > now:
-            return False
-
-    if message.valid_to is not None:
-        now = dt_util.now(message.valid_to.tzinfo)
-        if message.valid_to < now:
-            return False
-
-    return True
-
-
-def _message_attributes(message: Disruption) -> dict[str, Any]:
-    return {
-        ATTR_TITLE: message.title,
-        ATTR_DESCRIPTION: message.description_html,
-        ATTR_LINES: _message_line_labels(message),
-        ATTR_TRANSPORT_TYPE: message.kind,
-        ATTR_VALIDITY: _format_message_validity(message),
-    }
-
-
-def _message_line_labels(message: Disruption) -> list[str]:
-    if not message.lines:
-        return ["All lines"]
-    return sorted({line.label for line in message.lines})
-
-
-def _format_message_validity(message: Disruption) -> str:
-    valid_from = message.valid_from
-    valid_to = message.valid_to
-
-    if valid_from is not None and valid_to is not None:
-        local_from = dt_util.as_local(valid_from)
-        local_to = dt_util.as_local(valid_to)
-        if local_from.date() == local_to.date():
-            return f"{local_from:%d.%m.%Y} {local_from:%H:%M} - {local_to:%H:%M}"
-        return f"{local_from:%d.%m.%Y %H:%M} - {local_to:%d.%m.%Y %H:%M}"
-
-    if valid_from is not None:
-        return f"From {dt_util.as_local(valid_from):%d.%m.%Y %H:%M}"
-
-    if valid_to is not None:
-        return f"Until {dt_util.as_local(valid_to):%d.%m.%Y %H:%M}"
-
-    return "No specific time"
+        now = dt_util.utcnow()
+        lines = [direction.line_label for direction in self._station.directions]
+        return sum(
+            message.is_active(now)
+            and message.affects_station(self._station.global_id, lines)
+            for message in self.coordinator.data or []
+        )

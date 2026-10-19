@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from homeassistant.util import dt as dt_util
 from munich_transport.models import Departure, Line, Station, StationDirectionOption
 
+NOW = datetime.fromisoformat("2026-10-19T12:00:00+00:00")
+SUBENTRY_ID = "01JMUNCHNERFREIHEIT0SUBENT"
+
 STATION = Station(
     global_id="de:09162:500",
     name="Münchner Freiheit",
@@ -20,6 +23,11 @@ ENTRY_DATA = {
     "station_global_id": STATION.global_id,
     "station_abbreviation": STATION.abbreviation,
     "station_place": STATION.place,
+}
+
+STATION_DATA = {
+    **ENTRY_DATA,
+    "direction_option_ids": ["SUBWAY:U6:H", "SUBWAY:U6:R"],
 }
 
 U6 = Line(label="U6", transport_type="UBAHN", network="swm")

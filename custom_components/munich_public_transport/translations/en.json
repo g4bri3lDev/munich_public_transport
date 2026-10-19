@@ -17,9 +17,27 @@
       },
       "select_directions": {
         "title": "Select lines and directions",
-        "description": "Choose the line and direction pairings Home Assistant should expose as sensors.",
+        "description": "Choose the line and direction pairings Home Assistant should create sensors for.",
         "data": {},
         "sections": {
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Lines and directions"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Lines and directions"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Lines and directions"
+            }
+          },
           "bus": {
             "name": "Bus",
             "data": {
@@ -38,28 +56,22 @@
               "direction_option_ids_regional_bus": "Lines and directions"
             }
           },
+          "train": {
+            "name": "Train",
+            "data": {
+              "direction_option_ids_train": "Lines and directions"
+            }
+          },
           "replacement_service": {
             "name": "Replacement service",
             "data": {
               "direction_option_ids_replacement_service": "Lines and directions"
             }
           },
-          "s_bahn": {
-            "name": "S-Bahn",
+          "other": {
+            "name": "Other",
             "data": {
-              "direction_option_ids_s_bahn": "Lines and directions"
-            }
-          },
-          "subway": {
-            "name": "U-Bahn",
-            "data": {
-              "direction_option_ids_subway": "Lines and directions"
-            }
-          },
-          "tram": {
-            "name": "Tram",
-            "data": {
-              "direction_option_ids_tram": "Lines and directions"
+              "direction_option_ids_other": "Lines and directions"
             }
           }
         }
@@ -70,64 +82,225 @@
       "invalid_station": "The selected station did not include the expected metadata.",
       "no_direction_options": "No selectable line and direction pairings were found for this station.",
       "no_stations_found": "No matching stations were found."
-    },
-    "abort": {
-      "already_configured": "This station is already configured."
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Update lines and directions",
-        "data": {},
-        "sections": {
-          "bus": {
-            "name": "Bus",
-            "data": {
-              "direction_option_ids_bus": "Lines and directions"
+  "config_subentries": {
+    "station": {
+      "initiate_flow": {
+        "user": "Add station"
+      },
+      "entry_type": "Station",
+      "step": {
+        "user": {
+          "title": "Add station",
+          "description": "Search for a Munich public transport station.",
+          "data": {
+            "query": "Station search"
+          }
+        },
+        "select_station": {
+          "title": "Select station",
+          "data": {
+            "selected_station": "Station"
+          }
+        },
+        "select_directions": {
+          "title": "Select lines and directions",
+          "description": "Choose the line and direction pairings Home Assistant should create sensors for.",
+          "data": {},
+          "sections": {
+            "subway": {
+              "name": "U-Bahn",
+              "data": {
+                "direction_option_ids_subway": "Lines and directions"
+              }
+            },
+            "s_bahn": {
+              "name": "S-Bahn",
+              "data": {
+                "direction_option_ids_s_bahn": "Lines and directions"
+              }
+            },
+            "tram": {
+              "name": "Tram",
+              "data": {
+                "direction_option_ids_tram": "Lines and directions"
+              }
+            },
+            "bus": {
+              "name": "Bus",
+              "data": {
+                "direction_option_ids_bus": "Lines and directions"
+              }
+            },
+            "night_line": {
+              "name": "Night bus",
+              "data": {
+                "direction_option_ids_night_line": "Lines and directions"
+              }
+            },
+            "regional_bus": {
+              "name": "Regional bus",
+              "data": {
+                "direction_option_ids_regional_bus": "Lines and directions"
+              }
+            },
+            "train": {
+              "name": "Train",
+              "data": {
+                "direction_option_ids_train": "Lines and directions"
+              }
+            },
+            "replacement_service": {
+              "name": "Replacement service",
+              "data": {
+                "direction_option_ids_replacement_service": "Lines and directions"
+              }
+            },
+            "other": {
+              "name": "Other",
+              "data": {
+                "direction_option_ids_other": "Lines and directions"
+              }
             }
-          },
-          "night_line": {
-            "name": "Night bus",
-            "data": {
-              "direction_option_ids_night_line": "Lines and directions"
-            }
-          },
-          "regional_bus": {
-            "name": "Regional bus",
-            "data": {
-              "direction_option_ids_regional_bus": "Lines and directions"
-            }
-          },
-          "replacement_service": {
-            "name": "Replacement service",
-            "data": {
-              "direction_option_ids_replacement_service": "Lines and directions"
-            }
-          },
-          "s_bahn": {
-            "name": "S-Bahn",
-            "data": {
-              "direction_option_ids_s_bahn": "Lines and directions"
-            }
-          },
-          "subway": {
-            "name": "U-Bahn",
-            "data": {
-              "direction_option_ids_subway": "Lines and directions"
-            }
-          },
-          "tram": {
-            "name": "Tram",
-            "data": {
-              "direction_option_ids_tram": "Lines and directions"
+          }
+        },
+        "reconfigure": {
+          "title": "Change lines and directions",
+          "description": "Choose the line and direction pairings of {station}.",
+          "data": {},
+          "sections": {
+            "subway": {
+              "name": "U-Bahn",
+              "data": {
+                "direction_option_ids_subway": "Lines and directions"
+              }
+            },
+            "s_bahn": {
+              "name": "S-Bahn",
+              "data": {
+                "direction_option_ids_s_bahn": "Lines and directions"
+              }
+            },
+            "tram": {
+              "name": "Tram",
+              "data": {
+                "direction_option_ids_tram": "Lines and directions"
+              }
+            },
+            "bus": {
+              "name": "Bus",
+              "data": {
+                "direction_option_ids_bus": "Lines and directions"
+              }
+            },
+            "night_line": {
+              "name": "Night bus",
+              "data": {
+                "direction_option_ids_night_line": "Lines and directions"
+              }
+            },
+            "regional_bus": {
+              "name": "Regional bus",
+              "data": {
+                "direction_option_ids_regional_bus": "Lines and directions"
+              }
+            },
+            "train": {
+              "name": "Train",
+              "data": {
+                "direction_option_ids_train": "Lines and directions"
+              }
+            },
+            "replacement_service": {
+              "name": "Replacement service",
+              "data": {
+                "direction_option_ids_replacement_service": "Lines and directions"
+              }
+            },
+            "other": {
+              "name": "Other",
+              "data": {
+                "direction_option_ids_other": "Lines and directions"
+              }
             }
           }
         }
+      },
+      "error": {
+        "cannot_connect": "Could not connect to MVG.",
+        "invalid_station": "The selected station did not include the expected metadata.",
+        "no_direction_options": "No selectable line and direction pairings were found for this station.",
+        "no_stations_found": "No matching stations were found."
+      },
+      "abort": {
+        "already_configured": "This station is already configured.",
+        "cannot_connect": "Could not connect to MVG."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_departure": {
+        "name": "Next departure"
+      },
+      "disruptions": {
+        "name": "Disruptions"
+      },
+      "departure": {
+        "name": "{direction}"
+      },
+      "destination": {
+        "name": "{direction} destination"
+      },
+      "delay": {
+        "name": "{direction} delay"
+      },
+      "following_departure": {
+        "name": "{direction} following departure"
+      },
+      "platform": {
+        "name": "{direction} platform"
       }
     },
-    "abort": {
-      "cannot_connect": "Could not connect to MVG."
+    "binary_sensor": {
+      "disruption": {
+        "name": "{direction} disruption"
+      }
+    }
+  },
+  "services": {
+    "get_departures": {
+      "name": "Get departures",
+      "description": "Returns the upcoming departures and service messages of a station, from the data the integration already fetched.",
+      "fields": {
+        "device_id": {
+          "name": "Station",
+          "description": "The station device to get departures for."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_device": {
+      "message": "The selected device is not a Munich Public Transport station."
+    },
+    "station_not_loaded": {
+      "message": "The selected station is not loaded."
+    },
+    "station_unavailable": {
+      "message": "No departure data is available for {station} right now."
+    },
+    "temporarily_unavailable": "MVG is temporarily unavailable (HTTP {status}).",
+    "api_error": "MVG returned HTTP {status}.",
+    "cannot_connect": "Could not connect to MVG: {error}",
+    "migration_cannot_connect": "Could not reach MVG to migrate {title}; retrying.",
+    "legacy_entry_without_station": "{title} was set up with an old version and has no station; remove it and add the station again."
+  },
+  "issues": {
+    "legacy_entry_without_station": {
+      "title": "{title} cannot be migrated",
+      "description": "The {title} entry was created by an old version of Munich Public Transport and does not record its station, so it cannot be migrated. Remove the entry and add the station again."
     }
   }
 }

@@ -1,21 +1,19 @@
 # serializer version: 1
-# name: test_sensors[sensor.munchner_freiheit_all_departures-entry]
+# name: test_entities[messages0-departures0-binary_sensor][binary_sensor.munchner_freiheit_u6_garching_forschungszentrum_disruption-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
     ]),
     'area_id': None,
-    'capabilities': dict({
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
+    'capabilities': None,
     'config_entry_id': <ANY>,
     'config_subentry_id': <ANY>,
     'device_class': None,
     'device_id': <ANY>,
     'disabled_by': None,
-    'domain': 'sensor',
+    'domain': 'binary_sensor',
     'entity_category': None,
-    'entity_id': 'sensor.munchner_freiheit_all_departures',
+    'entity_id': 'binary_sensor.munchner_freiheit_u6_garching_forschungszentrum_disruption',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -23,96 +21,51 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'All Departures',
+    'object_id_base': 'U6 → Garching, Forschungszentrum disruption',
     'options': dict({
-      'sensor': dict({
-        'suggested_display_precision': 2,
-      }),
     }),
-    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
-    'original_icon': 'mdi:subway',
-    'original_name': 'All Departures',
+    'original_device_class': <BinarySensorDeviceClass.PROBLEM: 'problem'>,
+    'original_icon': None,
+    'original_name': 'U6 → Garching, Forschungszentrum disruption',
     'platform': 'munich_public_transport',
     'previous_unique_id': None,
     'suggested_object_id': None,
     'supported_features': 0,
-    'translation_key': None,
-    'unique_id': '01JMUNCHNERFREIHEIT0000000_all_departures',
-    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+    'translation_key': 'disruption',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_disruption',
+    'unit_of_measurement': None,
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_all_departures-state]
+# name: test_entities[messages0-departures0-binary_sensor][binary_sensor.munchner_freiheit_u6_garching_forschungszentrum_disruption-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      'attribution': 'Data provided by MVG',
-      'departures': list([
-        dict({
-          'cancelled': False,
-          'delay': 2,
-          'destination': 'Klinikum Großhadern',
-          'direction_key': 'H',
-          'is_late': True,
-          'line': 'U6',
-          'minutes_until_departure': 5,
-          'network': 'swm',
-          'occupancy': None,
-          'planned_departure': '14:03',
-          'platform': 1,
-          'platform_changed': None,
-          'realtime': True,
-          'realtime_departure': '14:05',
-          'type': 'UBAHN',
-        }),
-        dict({
-          'cancelled': False,
-          'delay': 0,
-          'destination': 'Garching, Forschungszentrum',
-          'direction_key': 'R',
-          'is_late': False,
-          'line': 'U6',
-          'minutes_until_departure': 8,
-          'network': 'swm',
-          'occupancy': None,
-          'planned_departure': '14:08',
-          'platform': 1,
-          'platform_changed': None,
-          'realtime': True,
-          'realtime_departure': '14:08',
-          'type': 'UBAHN',
-        }),
-      ]),
-      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit All Departures',
-      <EntityStateAttribute.ICON: 'icon'>: 'mdi:subway',
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-      'total_departures': 2,
-      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'problem',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum disruption',
     }),
     'context': <ANY>,
-    'entity_id': 'sensor.munchner_freiheit_all_departures',
+    'entity_id': 'binary_sensor.munchner_freiheit_u6_garching_forschungszentrum_disruption',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
-    'state': '5',
+    'state': 'on',
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_messages-entry]
+# name: test_entities[messages0-departures0-binary_sensor][binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
     ]),
     'area_id': None,
-    'capabilities': dict({
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
+    'capabilities': None,
     'config_entry_id': <ANY>,
     'config_subentry_id': <ANY>,
     'device_class': None,
     'device_id': <ANY>,
     'disabled_by': None,
-    'domain': 'sensor',
+    'domain': 'binary_sensor',
     'entity_category': None,
-    'entity_id': 'sensor.munchner_freiheit_messages',
+    'entity_id': 'binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -120,49 +73,94 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Messages',
+    'object_id_base': 'U6 → Klinikum Großhadern disruption',
+    'options': dict({
+    }),
+    'original_device_class': <BinarySensorDeviceClass.PROBLEM: 'problem'>,
+    'original_icon': None,
+    'original_name': 'U6 → Klinikum Großhadern disruption',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'disruption',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_disruption',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-binary_sensor][binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'problem',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern disruption',
+    }),
+    'context': <ANY>,
+    'entity_id': 'binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'on',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_disruptions-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_disruptions',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'Disruptions',
     'options': dict({
     }),
     'original_device_class': None,
-    'original_icon': 'mdi:message-alert',
-    'original_name': 'Messages',
+    'original_icon': None,
+    'original_name': 'Disruptions',
     'platform': 'munich_public_transport',
     'previous_unique_id': None,
     'suggested_object_id': None,
     'supported_features': 0,
-    'translation_key': None,
-    'unique_id': '01JMUNCHNERFREIHEIT0000000_messages',
-    'unit_of_measurement': 'messages',
+    'translation_key': 'disruptions',
+    'unique_id': 'de:09162:500_disruptions',
+    'unit_of_measurement': None,
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_messages-state]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_disruptions-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      'attribution': 'Data provided by MVG',
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit Messages',
-      <EntityStateAttribute.ICON: 'icon'>: 'mdi:message-alert',
-      'messages': list([
-      ]),
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: 'messages',
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit Disruptions',
     }),
     'context': <ANY>,
-    'entity_id': 'sensor.munchner_freiheit_messages',
+    'entity_id': 'sensor.munchner_freiheit_disruptions',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
-    'state': '0',
+    'state': '1',
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_next_departure-entry]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_next_departure-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
     ]),
     'area_id': None,
-    'capabilities': dict({
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
+    'capabilities': None,
     'config_entry_id': <ANY>,
     'config_subentry_id': <ANY>,
     'device_class': None,
@@ -178,66 +176,43 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Next Departure',
+    'object_id_base': 'Next departure',
     'options': dict({
-      'sensor': dict({
-        'suggested_display_precision': 2,
-      }),
     }),
-    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
-    'original_icon': 'mdi:subway',
-    'original_name': 'Next Departure',
+    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
+    'original_icon': None,
+    'original_name': 'Next departure',
     'platform': 'munich_public_transport',
     'previous_unique_id': None,
     'suggested_object_id': None,
     'supported_features': 0,
-    'translation_key': None,
-    'unique_id': '01JMUNCHNERFREIHEIT0000000_next_departure',
-    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+    'translation_key': 'next_departure',
+    'unique_id': 'de:09162:500_next_departure',
+    'unit_of_measurement': None,
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_next_departure-state]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_next_departure-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      'attribution': 'Data provided by MVG',
-      'cancelled': False,
-      'delay': 2,
-      'destination': 'Klinikum Großhadern',
-      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
-      'direction_key': 'H',
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit Next Departure',
-      <EntityStateAttribute.ICON: 'icon'>: 'mdi:subway',
-      'is_late': True,
-      'line': 'U6',
-      'minutes_until_departure': 5,
-      'network': 'swm',
-      'occupancy': None,
-      'planned_departure': '14:03',
-      'platform': 1,
-      'platform_changed': None,
-      'realtime': True,
-      'realtime_departure': '14:05',
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-      'type': 'UBAHN',
-      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit Next departure',
     }),
     'context': <ANY>,
     'entity_id': 'sensor.munchner_freiheit_next_departure',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
-    'state': '5',
+    'state': '2026-10-19T12:05:00+00:00',
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_u6_garching_forschungszentrum-entry]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
     ]),
     'area_id': None,
-    'capabilities': dict({
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
+    'capabilities': None,
     'config_entry_id': <ANY>,
     'config_subentry_id': <ANY>,
     'device_class': None,
@@ -255,81 +230,35 @@
     'name': None,
     'object_id_base': 'U6 → Garching, Forschungszentrum',
     'options': dict({
-      'sensor': dict({
-        'suggested_display_precision': 2,
-      }),
     }),
-    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
-    'original_icon': 'mdi:subway',
+    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
+    'original_icon': None,
     'original_name': 'U6 → Garching, Forschungszentrum',
     'platform': 'munich_public_transport',
     'previous_unique_id': None,
     'suggested_object_id': None,
     'supported_features': 0,
-    'translation_key': None,
-    'unique_id': '01JMUNCHNERFREIHEIT0000000_SUBWAY:U6:R',
-    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+    'translation_key': 'departure',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_departure',
+    'unit_of_measurement': None,
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_u6_garching_forschungszentrum-state]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      'attribution': 'Data provided by MVG',
-      'cancelled': False,
-      'delay': 0,
-      'departures': list([
-        dict({
-          'cancelled': False,
-          'delay': 0,
-          'destination': 'Garching, Forschungszentrum',
-          'direction_key': 'R',
-          'is_late': False,
-          'line': 'U6',
-          'minutes_until_departure': 8,
-          'network': 'swm',
-          'occupancy': None,
-          'planned_departure': '14:08',
-          'platform': 1,
-          'platform_changed': None,
-          'realtime': True,
-          'realtime_departure': '14:08',
-          'type': 'UBAHN',
-        }),
-      ]),
-      'destination': 'Garching, Forschungszentrum',
-      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
-      'direction_key': 'R',
-      'direction_variants': list([
-        'Garching, Forschungszentrum',
-        'Implerstraße / Garching-Forschungszentrum',
-      ]),
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
       <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum',
-      <EntityStateAttribute.ICON: 'icon'>: 'mdi:subway',
-      'is_late': False,
-      'line': 'U6',
-      'minutes_until_departure': 8,
-      'network': 'swm',
-      'normal_terminus': 'Garching, Forschungszentrum',
-      'occupancy': None,
-      'planned_departure': '14:08',
-      'platform': 1,
-      'platform_changed': None,
-      'realtime': True,
-      'realtime_departure': '14:08',
-      'schedule_kind': 'SUBWAY',
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-      'type': 'UBAHN',
-      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
     }),
     'context': <ANY>,
     'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
-    'state': '8',
+    'state': '2026-10-19T12:08:00+00:00',
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_u6_klinikum_grosshadern-entry]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_delay-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
@@ -338,6 +267,217 @@
     'capabilities': dict({
       <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
     }),
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_delay',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Garching, Forschungszentrum delay',
+    'options': dict({
+      'sensor': dict({
+        'suggested_display_precision': 2,
+      }),
+    }),
+    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
+    'original_icon': None,
+    'original_name': 'U6 → Garching, Forschungszentrum delay',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'delay',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_delay',
+    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_delay-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum delay',
+      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
+      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_delay',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '0',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_destination-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_destination',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Garching, Forschungszentrum destination',
+    'options': dict({
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'U6 → Garching, Forschungszentrum destination',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'destination',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_destination',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_destination-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum destination',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_destination',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'Garching, Forschungszentrum',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_following_departure-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_following_departure',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Garching, Forschungszentrum following departure',
+    'options': dict({
+    }),
+    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
+    'original_icon': None,
+    'original_name': 'U6 → Garching, Forschungszentrum following departure',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'following_departure',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_following_departure',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_following_departure-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum following departure',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_following_departure',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'unknown',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_platform-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_platform',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Garching, Forschungszentrum platform',
+    'options': dict({
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'U6 → Garching, Forschungszentrum platform',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'platform',
+    'unique_id': 'de:09162:500_SUBWAY:U6:R_platform',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum_platform-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Garching, Forschungszentrum platform',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_garching_forschungszentrum_platform',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '1',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
     'config_entry_id': <ANY>,
     'config_subentry_id': <ANY>,
     'device_class': None,
@@ -355,77 +495,244 @@
     'name': None,
     'object_id_base': 'U6 → Klinikum Großhadern',
     'options': dict({
-      'sensor': dict({
-        'suggested_display_precision': 2,
-      }),
     }),
-    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
-    'original_icon': 'mdi:subway',
+    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
+    'original_icon': None,
     'original_name': 'U6 → Klinikum Großhadern',
     'platform': 'munich_public_transport',
     'previous_unique_id': None,
     'suggested_object_id': None,
     'supported_features': 0,
-    'translation_key': None,
-    'unique_id': '01JMUNCHNERFREIHEIT0000000_SUBWAY:U6:H',
-    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+    'translation_key': 'departure',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_departure',
+    'unit_of_measurement': None,
   })
 # ---
-# name: test_sensors[sensor.munchner_freiheit_u6_klinikum_grosshadern-state]
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      'attribution': 'Data provided by MVG',
-      'cancelled': False,
-      'delay': 2,
-      'departures': list([
-        dict({
-          'cancelled': False,
-          'delay': 2,
-          'destination': 'Klinikum Großhadern',
-          'direction_key': 'H',
-          'is_late': True,
-          'line': 'U6',
-          'minutes_until_departure': 5,
-          'network': 'swm',
-          'occupancy': None,
-          'planned_departure': '14:03',
-          'platform': 1,
-          'platform_changed': None,
-          'realtime': True,
-          'realtime_departure': '14:05',
-          'type': 'UBAHN',
-        }),
-      ]),
-      'destination': 'Klinikum Großhadern',
-      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
-      'direction_key': 'H',
-      'direction_variants': list([
-        'Klinikum Großhadern',
-        'Goetheplatz / Klinikum Großhadern',
-      ]),
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
       <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern',
-      <EntityStateAttribute.ICON: 'icon'>: 'mdi:subway',
-      'is_late': True,
-      'line': 'U6',
-      'minutes_until_departure': 5,
-      'network': 'swm',
-      'normal_terminus': 'Klinikum Großhadern',
-      'occupancy': None,
-      'planned_departure': '14:03',
-      'platform': 1,
-      'platform_changed': None,
-      'realtime': True,
-      'realtime_departure': '14:05',
-      'schedule_kind': 'SUBWAY',
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-      'type': 'UBAHN',
-      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
     }),
     'context': <ANY>,
     'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
-    'state': '5',
+    'state': '2026-10-19T12:05:00+00:00',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_delay-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': dict({
+      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
+    }),
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_delay',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Klinikum Großhadern delay',
+    'options': dict({
+      'sensor': dict({
+        'suggested_display_precision': 2,
+      }),
+    }),
+    'original_device_class': <SensorDeviceClass.DURATION: 'duration'>,
+    'original_icon': None,
+    'original_name': 'U6 → Klinikum Großhadern delay',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'delay',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_delay',
+    'unit_of_measurement': <UnitOfTime.MINUTES: 'min'>,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_delay-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'duration',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern delay',
+      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
+      <EntityStateAttribute.UNIT_OF_MEASUREMENT: 'unit_of_measurement'>: <UnitOfTime.MINUTES: 'min'>,
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_delay',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '2',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_destination-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_destination',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Klinikum Großhadern destination',
+    'options': dict({
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'U6 → Klinikum Großhadern destination',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'destination',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_destination',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_destination-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern destination',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_destination',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'Klinikum Großhadern',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_following_departure-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_following_departure',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Klinikum Großhadern following departure',
+    'options': dict({
+    }),
+    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
+    'original_icon': None,
+    'original_name': 'U6 → Klinikum Großhadern following departure',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'following_departure',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_following_departure',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_following_departure-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern following departure',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_following_departure',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '2026-10-19T12:13:00+00:00',
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_platform-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': None,
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': None,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_platform',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'U6 → Klinikum Großhadern platform',
+    'options': dict({
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'U6 → Klinikum Großhadern platform',
+    'platform': 'munich_public_transport',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'platform',
+    'unique_id': 'de:09162:500_SUBWAY:U6:H_platform',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_klinikum_grosshadern_platform-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit U6 → Klinikum Großhadern platform',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.munchner_freiheit_u6_klinikum_grosshadern_platform',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '1',
   })
 # ---
