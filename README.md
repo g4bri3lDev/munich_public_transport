@@ -178,7 +178,7 @@ minutes.
 
 ## Data updates
 
-Each station polls MVG's live departures every 45 seconds, and one request
+Each station polls MVG's live departures every minute, and one request
 every 30 minutes fetches the service messages for all stations. When MVG
 answers with HTTP 429 or a 5xx status, the integration waits for the time MVG
 asks for, up to 15 minutes, before trying again. Entities become unavailable

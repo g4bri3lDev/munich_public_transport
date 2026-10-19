@@ -28,7 +28,7 @@ OLD_CONF_STATION_NAME = "station_name"
 OLD_CONF_LINES = "lines"
 OLD_CONF_DIRECTIONS = "directions"
 
-DEFAULT_SCAN_INTERVAL = timedelta(seconds=45)
+DEFAULT_SCAN_INTERVAL = timedelta(minutes=1)
 DEFAULT_MESSAGES_SCAN_INTERVAL = timedelta(minutes=30)
 
 SERVICE_GET_DEPARTURES = "get_departures"
