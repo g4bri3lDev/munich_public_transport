@@ -170,12 +170,6 @@ automation:
           message: The U6 has a disruption at Münchner Freiheit.
 ```
 
-### E-paper departure board
-
-[`blueprints/automation/munich_public_transport/epaper_departure_board.yaml`](blueprints/automation/munich_public_transport/epaper_departure_board.yaml)
-draws the next departures of a station on OpenEPaperLink tags every five
-minutes.
-
 ## Data updates
 
 Each station polls MVG's live departures every minute, and one request
