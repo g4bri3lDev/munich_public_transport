@@ -40,7 +40,7 @@ one station are updated from the same API response.
 
 ## Installation
 
-Requires Home Assistant `2024.7.0` or newer.
+Requires Home Assistant `2026.7.0` or newer.
 
 ### HACS
 
@@ -72,7 +72,8 @@ Each configured station creates:
 
 - **Next Departure**: minutes until the next selected departure.
 - **All Departures**: minutes until the next selected departure, with upcoming
-  departures in the `departures` attribute.
+  departures in the `departures` attribute and their count in
+  `total_departures`.
 - **Messages**: number of relevant MVG service messages.
 - **Line/direction sensors**: one sensor for each selected pairing.
 
@@ -91,6 +92,7 @@ automations keep working:
 - `realtime_departure`
 - `planned_departure`
 - `delay`
+- `is_late`
 - `minutes_until_departure`
 - `type`
 - `occupancy`
@@ -154,6 +156,36 @@ The **Messages** sensor exposes a `messages` attribute. Each message includes:
   per station by affected station or selected lines.
 - If a migrated station does not select the expected directions, open the
   integration options and reselect the line/direction pairings.
+
+## Migrating from the old integration
+
+Stations configured with releases before the rewrite are migrated
+automatically on the first start:
+
+- Each legacy line/direction is matched against MVG's schedule catalog. Small
+  spelling differences such as `Tierpark (Alemannenstr)` and
+  `Tierpark (Alemannenstr.)` still match.
+- Existing entity IDs are kept, so dashboards and automations keep working.
+- Sensors for legacy directions that no catalog direction covers are removed,
+  and the unmatched names are logged as a warning.
+- The old integration filtered lines and directions independently, so a
+  direction shared by several selected lines selects it for each of them.
+- Disabled stations are migrated when they are enabled again.
+
+## Development
+
+The test suite runs on
+[`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component),
+managed with [uv](https://docs.astral.sh/uv/):
+
+```bash
+scripts/setup             # create the environment
+scripts/test              # run against the latest pinned Home Assistant
+scripts/test --min-ha     # run against the minimum supported version
+scripts/lint              # ruff fix and format
+```
+
+CI runs both Home Assistant versions and ruff on every pull request.
 
 ## License
 
