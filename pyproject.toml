@@ -1,0 +1,108 @@
+[project]
+name = "munich-public-transport-homeassistant"
+version = "0.0.0"
+description = "Munich Public Transport Home Assistant custom integration"
+# 3.14.2 is homeassistant's floor; PHCC's own metadata only claims >=3.14.
+requires-python = ">=3.14.2"
+
+# Mirrors custom_components/munich_public_transport/manifest.json
+# "requirements". Everything else the integration imports (aiohttp,
+# voluptuous) is supplied by Home Assistant itself, which the test dependency
+# groups pin transitively.
+dependencies = [
+    "munich-transport==0.1.1",
+]
+
+[dependency-groups]
+# One group per CI matrix leg. pytest-homeassistant-custom-component pins an
+# exact homeassistant version (and pytest, syrupy, freezegun, SQLAlchemy, ...)
+# per release, so never re-pin those here -- picking the PHCC version *is*
+# picking the HA version being tested against.
+#
+#   0.13.373 -> homeassistant 2026.10.2  (latest)
+#   0.13.344 -> homeassistant 2026.7.0   (the hacs.json floor)
+dev = [
+    "pytest-homeassistant-custom-component==0.13.373",
+    "ruff==0.15.17",
+    "mypy==1.18.2",
+]
+min-ha = [
+    "pytest-homeassistant-custom-component==0.13.344",
+    "ruff==0.15.17",
+    "mypy==1.18.2",
+]
+
+[tool.uv]
+package = false
+# The two legs pin conflicting homeassistant versions; declaring them as
+# mutually exclusive lets `uv lock` resolve both into a single uv.lock.
+conflicts = [[{ group = "dev" }, { group = "min-ha" }]]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+norecursedirs = [".git", ".venv", "config"]
+addopts = "--cov=custom_components.munich_public_transport --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["custom_components/munich_public_transport"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+
+[tool.ruff]
+target-version = "py314"
+exclude = [".venv", "config", "scripts"]
+
+[tool.ruff.lint]
+# A subset of Home Assistant core's ruleset -- the rules that matter for an
+# integration without turning this into a lint-cleanup project.
+select = [
+    "ASYNC", # flake8-async
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "D",     # pydocstyle
+    "E",     # pycodestyle errors
+    "F",     # pyflakes
+    "FLY",   # flynt
+    "G",     # flake8-logging-format
+    "I",     # isort
+    "ISC",   # flake8-implicit-str-concat
+    "LOG",   # flake8-logging
+    "PGH",   # pygrep-hooks
+    "PIE",   # flake8-pie
+    "PT",    # flake8-pytest-style
+    "RET",   # flake8-return
+    "RSE",   # flake8-raise
+    "RUF",   # ruff-specific
+    "SIM",   # flake8-simplify
+    "SLOT",  # flake8-slots
+    "T20",   # flake8-print
+    "TID",   # tidy imports
+    "TRY",   # tryceratops
+    "UP",    # pyupgrade
+    "W",     # pycodestyle warnings
+]
+ignore = [
+    "D202",   # No blank lines allowed after function docstring
+    "D203",   # 1 blank line required before class docstring
+    "D213",   # Multi-line docstring summary should start at the second line
+    "D406",   # Section name should end with a newline
+    "D407",   # Section name underlining
+    "E501",   # line too long -- ruff format owns line length
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "TRY300", # Consider moving this statement to an `else` block
+    "TRY400", # Use `logging.exception` instead of `logging.error`
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components", "tests"]
+combine-as-imports = true
+split-on-trailing-comma = false
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25

@@ -1,0 +1,101 @@
+name: Bump test harness
+
+# pytest-homeassistant-custom-component ships a release per Home Assistant
+# release, so the `dev` pin is what decides which HA version the suite is tested
+# against. Left alone it goes stale within weeks.
+#
+# This deliberately does not use Dependabot: it is blind to PEP 735 dependency
+# groups (dependabot/dependabot-core#10847) and would try to drag `min-ha` up to
+# the same version, silently destroying the floor leg. Only the `dev` group is
+# touched here; `min-ha` moves when hacs.json moves, by hand.
+
+on:
+  schedule:
+    # Mondays, 06:00 UTC.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Upgrade the dev pin
+        id: bump
+        run: |
+          set -euo pipefail
+          before=$(grep -oE 'pytest-homeassistant-custom-component==[0-9.]+' pyproject.toml | head -1 | cut -d= -f3-)
+          latest=$(uv run --no-project --with packaging python - <<'PY'
+          import json, urllib.request
+          from packaging.version import Version
+          url = "https://pypi.org/pypi/pytest-homeassistant-custom-component/json"
+          data = json.load(urllib.request.urlopen(url))
+          print(max((v for v in data["releases"] if not Version(v).is_prerelease), key=Version))
+          PY
+          )
+          echo "before=$before" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          if [ "$before" = "$latest" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Only the dev group: the min-ha pin is the hacs.json floor.
+          python - "$before" "$latest" <<'PY'
+          import pathlib, sys
+          before, latest = sys.argv[1], sys.argv[2]
+          path = pathlib.Path("pyproject.toml")
+          text = path.read_text()
+          dev_start = text.index("dev = [")
+          dev_end = text.index("]", dev_start)
+          block = text[dev_start:dev_end].replace(
+              f"pytest-homeassistant-custom-component=={before}",
+              f"pytest-homeassistant-custom-component=={latest}",
+          )
+          path.write_text(text[:dev_start] + block + text[dev_end:])
+          PY
+
+          uv lock
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Report the Home Assistant version this pulls in
+        id: ha
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          ha=$(uv run --no-default-groups --group dev python -c \
+            "import homeassistant.const as c; print(c.__version__)")
+          echo "version=$ha" >> "$GITHUB_OUTPUT"
+
+      - uses: peter-evans/create-pull-request@v7
+        if: steps.bump.outputs.changed == 'true'
+        with:
+          branch: automated/bump-test-harness
+          delete-branch: true
+          title: "Test against Home Assistant ${{ steps.ha.outputs.version }}"
+          commit-message: |
+            chore(deps): test against Home Assistant ${{ steps.ha.outputs.version }}
+
+            Bumps pytest-homeassistant-custom-component from
+            ${{ steps.bump.outputs.before }} to ${{ steps.bump.outputs.latest }}
+            in the dev group only. The min-ha pin is the hacs.json floor and
+            moves by hand.
+          body: |
+            Bumps `pytest-homeassistant-custom-component`
+            `${{ steps.bump.outputs.before }}` -> `${{ steps.bump.outputs.latest }}`,
+            which is how the Home Assistant version under test is chosen. This
+            pulls in **Home Assistant ${{ steps.ha.outputs.version }}**.
+
+            Only the `dev` group moves. The `min-ha` pin tracks the `hacs.json`
+            floor and is changed by hand.
+
+            The test matrix on this PR is what decides whether the bump is safe.

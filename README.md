@@ -5,106 +5,189 @@
 [![GitHub issues](https://img.shields.io/github/issues/g4bri3lDev/munich_public_transport?style=for-the-badge)](https://github.com/g4bri3lDev/munich_public_transport/issues)
 [![GitHub stars](https://img.shields.io/github/stars/g4bri3lDev/munich_public_transport?style=for-the-badge)](https://github.com/g4bri3lDev/munich_public_transport/stargazers)
 
+Home Assistant custom integration for Munich public transport departures.
+
+This integration is not affiliated with, endorsed by, or sponsored by MVG, MVV,
+or Stadtwerke München.
+
 ## Overview
 
-This custom integration allows you to monitor public transport departures in Munich, Germany, directly from your Home Assistant instance. It provides real-time information about upcoming departures for selected stations, lines, and directions.
+Munich Public Transport lets Home Assistant monitor upcoming departures for
+selected Munich public transport stations. Each configured station becomes one
+Home Assistant device with sensors for the next departure, all selected
+departures, and each selected line/direction pairing.
+
+The current integration is a rewrite built on the standalone
+[`munich-transport`](https://github.com/g4bri3lDev/munich-transport) Python
+package. It uses one shared departure coordinator per station so all sensors for
+one station are updated from the same API response.
 
 ## Features
 
-- Real-time departure information for Munich public transport
-- Configurable through the Home Assistant UI
-- Support for multiple stations
-- Filtering by specific lines and directions
-- Customizable update interval
-- Sensors for next departure, all upcoming departures, and MVG messages
-- Individual sensors for each selected line and direction
+- UI-based setup and options flow.
+- Station search with support for stations that share the same name.
+- Multiple configured stations.
+- Line and direction selection grouped by transport type.
+- Stable line/direction entities based on MVG schedule catalogs.
+- Temporary termini support when MVG publishes construction schedules.
+- Night bus, bus, tram, U-Bahn, S-Bahn, regional bus, and replacement service
+  schedule groups when available for a station.
+- One shared live departures request per station refresh.
+- One shared MVG service messages request for all configured stations.
+- Retry handling for temporary MVG API errors such as `429`, `502`, `503`, and
+  `504`.
+- Legacy config-entry migration from the old integration schema.
 
 ## Installation
 
-### HACS (Home Assistant Community Store)
+Requires Home Assistant `2026.7.0` or newer.
 
-1. Ensure you have [HACS](https://hacs.xyz/) installed in your Home Assistant instance.
-2. In the HACS panel, click on "Integrations".
-3. Click the three dots in the top right corner and select "Custom repositories".
-4. Add the following information:
-   - Repository: `https://github.com/g4bri3lDev/munich_public_transport`
-   - Category: Integration
-5. Click "Add".
-6. Search for "Munich Public Transport" in the HACS store.
-7. Click "Install" and follow the prompts.
-8. Restart Home Assistant.
+### HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=g4bri3lDev&repository=munich_public_transport&category=integration)
 
 ### Manual Installation
 
-1. Download the latest release from the [GitHub repository](https://github.com/g4bri3lDev/munich_public_transport/releases).
-2. Unzip the download and copy the `munich_public_transport` folder to your `custom_components` directory in your Home Assistant configuration directory.
+1. Download the latest release from
+   [GitHub releases](https://github.com/g4bri3lDev/munich_public_transport/releases).
+2. Copy `custom_components/munich_public_transport` into the
+   `custom_components` directory of your Home Assistant configuration.
 3. Restart Home Assistant.
 
 ## Configuration
 
-1. In Home Assistant, go to Configuration > Integrations.
-2. Click the "+" button to add a new integration.
-3. Search for "Munich Public Transport" and select it.
-4. Follow the configuration steps:
-   - Enter a search query for the station you want to monitor.
-   - Select the specific station from the search results.
-   - Choose the lines you want to track (optional).
-   - Select the directions you want to monitor (optional).
-   - Set the number of departures to display for each line/direction.
-   - Configure the update interval.
+1. In Home Assistant, go to **Settings** > **Devices & services**.
+2. Click **Add integration**.
+3. Search for **Munich Public Transport**.
+4. Enter a station search term.
+5. Select the station from the search results.
+6. Select the line and direction pairings to expose as sensors.
 
-## Sensors
+The options flow can be used later to change the selected line/direction
+pairings for a station.
 
-The integration creates the following sensors:
+## Entities
 
-- `sensor.next_departure`: Shows the time until the next departure across all selected lines and directions.
-- `sensor.all_departures`: Provides a list of all upcoming departures across all selected lines and directions.
-- `sensor.messages`: Displays relevant MVG messages for the selected lines.
-- Individual sensors for each selected line and direction combination (e.g., `sensor.u3_to_moosach`).
+Each configured station creates:
 
-## Customization
+- **Next Departure**: minutes until the next selected departure.
+- **All Departures**: minutes until the next selected departure, with upcoming
+  departures in the `departures` attribute and their count in
+  `total_departures`.
+- **Messages**: number of relevant MVG service messages.
+- **Line/direction sensors**: one sensor for each selected pairing.
 
-You can customize the integration's behavior through the Options flow:
+Line/direction sensors use the normal catalog terminus for stable entity IDs,
+while the visible entity name follows the current live terminus. For example, a
+U-Bahn direction may keep a stable entity ID for `Fürstenried West` while the
+display name temporarily shows `Sendlinger Tor` during construction.
 
-1. Go to Configuration > Integrations.
-2. Find the Munich Public Transport integration and click "Options".
-3. Adjust the lines, directions, number of departures, and update interval as needed.
+## Attributes
+
+Departure attributes use the legacy names where practical so existing
+automations keep working:
+
+- `line`
+- `destination`
+- `realtime_departure`
+- `planned_departure`
+- `delay`
+- `is_late`
+- `minutes_until_departure`
+- `type`
+- `occupancy`
+- `cancelled`
+- `network`
+- `platform`
+- `platform_changed`
+- `realtime`
+- `direction_key`
+
+Line/direction sensors also expose selection metadata:
+
+- `normal_terminus`
+- `direction_variants`
+- `schedule_kind`
+- `departures`
+
+The **Messages** sensor exposes a `messages` attribute. Each message includes:
+
+- `title`
+- `description`
+- `lines`
+- `type`
+- `validity`
 
 ## Screenshots
 
 ### Selecting a station from the search results
+
 ![Selecting a station from the search results](screenshots/select_station.png)
 
 ### All added stations
+
 ![All added stations](screenshots/entries.png)
 
-### Device Overview
+### Device overview
+
 ![Device Overview](screenshots/device_overview.png)
 
-### All Departures
+### All departures
+
 ![All Departures](screenshots/all_departures.png)
 
 ### A specific line and direction
+
 ![A specific line and direction](screenshots/line.png)
 
 ### Messages for a station
+
 ![Messages for a station](screenshots/messages.png)
 
 ## Troubleshooting
 
-- If you encounter connection errors, ensure that your Home Assistant instance has internet access.
-- Check that the MVG API is operational and not experiencing downtime.
-- For persistent issues, check the Home Assistant logs for more detailed error messages.
-- If you're having trouble with the integration, try increasing the scan interval to reduce the load on the API.
+- If setup cannot find a station, try a shorter or more specific station name.
+- If a station has no selectable line/direction entries, MVG may not publish a
+  schedule catalog for that station or product group.
+- Temporary MVG API failures are handled by the station coordinator. During an
+  outage, entities may become temporarily unavailable instead of logging one
+  error per sensor.
+- MVG service messages are fetched by one shared coordinator and then filtered
+  per station by affected station or selected lines.
+- If a migrated station does not select the expected directions, open the
+  integration options and reselect the line/direction pairings.
 
-## Contributing
+## Migrating from the old integration
 
-Contributions to this project are welcome! Please fork the repository and submit a pull request with your improvements. For major changes, please open an issue first to discuss what you would like to change.
+Stations configured with releases before the rewrite are migrated
+automatically on the first start:
+
+- Each legacy line/direction is matched against MVG's schedule catalog. Small
+  spelling differences such as `Tierpark (Alemannenstr)` and
+  `Tierpark (Alemannenstr.)` still match.
+- Existing entity IDs are kept, so dashboards and automations keep working.
+- Sensors for legacy directions that no catalog direction covers are removed,
+  and the unmatched names are logged as a warning.
+- The old integration filtered lines and directions independently, so a
+  direction shared by several selected lines selects it for each of them.
+- Disabled stations are migrated when they are enabled again.
+
+## Development
+
+The test suite runs on
+[`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component),
+managed with [uv](https://docs.astral.sh/uv/):
+
+```bash
+scripts/setup             # create the environment
+scripts/test              # run against the latest pinned Home Assistant
+scripts/test --min-ha     # run against the minimum supported version
+scripts/lint              # ruff fix and format
+```
+
+CI runs both Home Assistant versions and ruff on every pull request.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Disclaimer
-
-This integration is not officially affiliated with or endorsed by MVG (Münchner Verkehrsgesellschaft). Use at your own risk.
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE)
+for details.

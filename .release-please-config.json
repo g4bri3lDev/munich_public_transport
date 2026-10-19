@@ -1,0 +1,17 @@
+{
+  "release-type": "simple",
+  "include-v-in-tag": false,
+  "packages": {
+    ".": {
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "custom_components/munich_public_transport/manifest.json",
+          "jsonpath": "$.version"
+        }
+      ],
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
+    }
+  }
+}
