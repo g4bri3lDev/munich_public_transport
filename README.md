@@ -14,10 +14,11 @@ or Stadtwerke München.
 ## Overview
 
 The integration is one **MVG** entry with a **station** for every stop you
-add. Each station is a device with sensors for its next departures and
-disruptions, one set per line and direction you pick. A
-`munich_public_transport.get_departures` action returns the full list of
-upcoming departures for dashboards and e-paper displays.
+add. Each station is a device with a departure sensor for every line and
+direction you pick, a disruption sensor for every line, and a count of the
+station's service messages. A `munich_public_transport.get_departures` action
+returns the full list of upcoming departures, with destinations, delays and
+platforms, for dashboards and e-paper displays.
 
 It is built on the standalone
 [`munich-transport`](https://github.com/g4bri3lDev/munich-transport) Python
@@ -136,6 +137,25 @@ template:
             {{ (board.departures | rejectattr('cancelled') | list)[:3] }}
 ```
 
+### Remind me to leave for the train
+
+The departure sensors are timestamps, so a template trigger can fire a few
+minutes before the next train:
+
+```yaml
+automation:
+  - triggers:
+      - trigger: template
+        value_template: >
+          {% set departure = states('sensor.munchner_freiheit_u6_klinikum_grosshadern')
+             | as_datetime(None) %}
+          {{ departure is not none and now() >= departure - timedelta(minutes=6) }}
+    actions:
+      - action: notify.mobile_app_phone
+        data:
+          message: Leave now for the U6 to Klinikum Großhadern.
+```
+
 ### Notify about a disruption on your line
 
 ```yaml
@@ -183,9 +203,13 @@ automatically on the first start:
 - All stations become subentries of one MVG entry. Device IDs are kept, and
   entities keep their entity IDs where there is a direct successor: the line
   sensors become the departure sensors and `messages` becomes `disruptions`.
-- **States are now timestamps** instead of minutes, and the `departures`
-  attributes are gone. Use the `get_departures` action instead; the
-  "All departures" and "Next departure" sensors are removed.
+- **States are now timestamps** instead of minutes, and sensors no longer
+  carry departure data as attributes: the `departures` lists, details such as
+  `destination`, `delay` and `platform`, and the `messages` list all come
+  from the `get_departures` action now. The "All departures" and "Next
+  departure" sensors are removed.
+- Disruptions are one binary sensor per line, next to the station's
+  "Disruptions" count.
 - Legacy directions are matched against MVG's schedule catalog, including
   small spelling differences. Directions that no longer exist are removed and
   logged.
