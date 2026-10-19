@@ -249,9 +249,6 @@
       },
       "following_departure": {
         "name": "{direction} übernächste Abfahrt"
-      },
-      "platform": {
-        "name": "{direction} Gleis"
       }
     },
     "binary_sensor": {

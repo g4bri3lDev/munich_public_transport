@@ -249,9 +249,6 @@
       },
       "following_departure": {
         "name": "{direction} following departure"
-      },
-      "platform": {
-        "name": "{direction} platform"
       }
     },
     "binary_sensor": {

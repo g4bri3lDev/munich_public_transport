@@ -114,11 +114,10 @@ async def test_entities(
 async def test_disabled_by_default(
     entity_registry: er.EntityRegistry, init_integration: MockConfigEntry
 ) -> None:
-    """Test the secondary direction sensors start disabled."""
-    for suffix in ("following_departure", "platform"):
-        entity = entity_registry.async_get(f"{DEPARTURE}_{suffix}")
-        assert entity is not None
-        assert entity.disabled_by is er.RegistryEntryDisabler.INTEGRATION
+    """Test the following departure sensor starts disabled."""
+    entity = entity_registry.async_get(f"{DEPARTURE}_following_departure")
+    assert entity is not None
+    assert entity.disabled_by is er.RegistryEntryDisabler.INTEGRATION
 
 
 @pytest.mark.parametrize(

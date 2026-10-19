@@ -9,9 +9,6 @@
       },
       "following_departure": {
         "default": "mdi:train-car"
-      },
-      "platform": {
-        "default": "mdi:train-car-side"
       }
     },
     "binary_sensor": {

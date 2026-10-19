@@ -59,17 +59,6 @@ DIRECTION_SENSORS: tuple[DepartureSensorEntityDescription, ...] = (
             departures[1].realtime_departure if len(departures) > 1 else None
         ),
     ),
-    DepartureSensorEntityDescription(
-        key="platform",
-        translation_key="platform",
-        entity_registry_enabled_default=False,
-        value_fn=lambda departures: _first(
-            departures,
-            lambda departure: (
-                None if departure.platform is None else str(departure.platform)
-            ),
-        ),
-    ),
 )
 
 DISRUPTIONS = SensorEntityDescription(

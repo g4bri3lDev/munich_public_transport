@@ -85,13 +85,12 @@ and for every selected line and direction, for example `U6 → Klinikum Großhad
 |---|---|---|
 | `U6 → Klinikum Großhadern` | Timestamp of the next departure. | Yes |
 | … following departure | Timestamp of the departure after next. | No |
-| … platform | Platform of the next departure. | No |
 
 Entity names and IDs use the regular terminus from MVG's schedule catalog, so
 they stay the same when trains turn short during construction. Cancelled
 departures are skipped. Timestamps show as relative times such as "in 4 min"
-in the dashboard. The live destination, delay and the full list of departures
-come from the `get_departures` action.
+in the dashboard. The live destination, delay, platform and the full list of
+departures come from the `get_departures` action.
 
 ## Actions
 
