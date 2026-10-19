@@ -238,7 +238,6 @@ async def test_options_flow(
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "init"
-    assert result["errors"] == {}
     defaults = {
         str(key): key.default()
         for key in result["data_schema"].schema["subway"].schema.schema
@@ -259,7 +258,11 @@ async def test_options_flow_cannot_connect(
     mock_client: MagicMock,
     mock_config_entry: MockConfigEntry,
 ) -> None:
-    """Test the options flow reports a failed direction lookup."""
+    """Test a failed direction lookup aborts and keeps the selection.
+
+    Showing the form without options would let a submit save an empty
+    selection and remove every line sensor.
+    """
     mock_config_entry.add_to_hass(hass)
     mock_client.station_direction_options_by_abbreviation.side_effect = (
         MunichTransportError("boom")
@@ -267,31 +270,8 @@ async def test_options_flow_cannot_connect(
 
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
 
-    assert result["type"] is FlowResultType.FORM
-    assert result["errors"] == {"base": "cannot_connect"}
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "When the direction lookup fails the form has no fields, so "
-        "submitting it saves an empty selection and drops every sensor"
-    ),
-)
-async def test_options_flow_cannot_connect_keeps_selection(
-    hass: HomeAssistant,
-    mock_client: MagicMock,
-    mock_config_entry: MockConfigEntry,
-) -> None:
-    """Test submitting after a failed lookup does not wipe the selection."""
-    mock_config_entry.add_to_hass(hass)
-    mock_client.station_direction_options_by_abbreviation.side_effect = (
-        MunichTransportError("boom")
-    )
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-
-    await hass.config_entries.options.async_configure(result["flow_id"], {})
-
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "cannot_connect"
     assert mock_config_entry.options[CONF_DIRECTION_OPTION_IDS] == [
         "SUBWAY:U6:H",
         "SUBWAY:U6:R",

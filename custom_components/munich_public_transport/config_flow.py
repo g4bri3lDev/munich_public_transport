@@ -179,7 +179,6 @@ class MunichTransportOptionsFlow(config_entries.OptionsFlow):
     ) -> config_entries.ConfigFlowResult:
         """Let the user update selected line/direction pairings."""
 
-        errors: dict[str, str] = {}
         if user_input is not None:
             return self.async_create_entry(
                 title="",
@@ -204,7 +203,9 @@ class MunichTransportOptionsFlow(config_entries.OptionsFlow):
                 station,
             )
         except MunichTransportError:
-            errors["base"] = "cannot_connect"
+            # Without options the form has no fields, and submitting it would
+            # save an empty selection and remove every line sensor.
+            return self.async_abort(reason="cannot_connect")
 
         option_ids = set(_direction_option_ids(self._direction_options))
         selected = [
@@ -222,7 +223,6 @@ class MunichTransportOptionsFlow(config_entries.OptionsFlow):
                 self._direction_options,
                 selected_ids=set(selected),
             ),
-            errors=errors,
         )
 
     def _client(self) -> MunichTransportClient:

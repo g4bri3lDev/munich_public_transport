@@ -126,7 +126,7 @@
         }
       }
     },
-    "error": {
+    "abort": {
       "cannot_connect": "Could not connect to MVG."
     }
   }
