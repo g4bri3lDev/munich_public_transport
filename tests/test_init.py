@@ -25,8 +25,8 @@ async def test_setup_and_unload(
         entity_registry, init_integration.entry_id
     )
     assert {entity.config_subentry_id for entity in entities} == {SUBENTRY_ID}
-    # Two per station, six per direction.
-    assert len(entities) == 2 + 2 * 6
+    # One per station, six per direction.
+    assert len(entities) == 1 + 2 * 6
     mock_client.departures.assert_awaited_with(STATION.global_id)
 
     assert await hass.config_entries.async_unload(init_integration.entry_id)

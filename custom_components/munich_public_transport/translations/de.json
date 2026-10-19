@@ -241,9 +241,6 @@
   },
   "entity": {
     "sensor": {
-      "next_departure": {
-        "name": "Nächste Abfahrt"
-      },
       "disruptions": {
         "name": "Störungen"
       },

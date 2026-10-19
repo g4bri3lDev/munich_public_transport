@@ -154,58 +154,6 @@
     'state': '1',
   })
 # ---
-# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_next_departure-entry]
-  EntityRegistryEntrySnapshot({
-    'aliases': list([
-      None,
-    ]),
-    'area_id': None,
-    'capabilities': None,
-    'config_entry_id': <ANY>,
-    'config_subentry_id': <ANY>,
-    'device_class': None,
-    'device_id': <ANY>,
-    'disabled_by': None,
-    'domain': 'sensor',
-    'entity_category': None,
-    'entity_id': 'sensor.munchner_freiheit_next_departure',
-    'has_entity_name': True,
-    'hidden_by': None,
-    'icon': None,
-    'id': <ANY>,
-    'labels': set({
-    }),
-    'name': None,
-    'object_id_base': 'Next departure',
-    'options': dict({
-    }),
-    'original_device_class': <SensorDeviceClass.TIMESTAMP: 'timestamp'>,
-    'original_icon': None,
-    'original_name': 'Next departure',
-    'platform': 'munich_public_transport',
-    'previous_unique_id': None,
-    'suggested_object_id': None,
-    'supported_features': 0,
-    'translation_key': 'next_departure',
-    'unique_id': 'de:09162:500_next_departure',
-    'unit_of_measurement': None,
-  })
-# ---
-# name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_next_departure-state]
-  StateSnapshot({
-    'attributes': ReadOnlyDict({
-      <EntityStateAttribute.ATTRIBUTION: 'attribution'>: 'Data provided by MVG',
-      <EntityStateAttribute.DEVICE_CLASS: 'device_class'>: 'timestamp',
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Münchner Freiheit Next departure',
-    }),
-    'context': <ANY>,
-    'entity_id': 'sensor.munchner_freiheit_next_departure',
-    'last_changed': <ANY>,
-    'last_reported': <ANY>,
-    'last_updated': <ANY>,
-    'state': '2026-10-19T12:05:00+00:00',
-  })
-# ---
 # name: test_entities[messages0-departures0-sensor][sensor.munchner_freiheit_u6_garching_forschungszentrum-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([

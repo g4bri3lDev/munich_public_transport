@@ -1,9 +1,6 @@
 {
   "entity": {
     "sensor": {
-      "next_departure": {
-        "default": "mdi:train-car"
-      },
       "disruptions": {
         "default": "mdi:message-alert"
       },

@@ -241,9 +241,6 @@
   },
   "entity": {
     "sensor": {
-      "next_departure": {
-        "name": "Next departure"
-      },
       "disruptions": {
         "name": "Disruptions"
       },

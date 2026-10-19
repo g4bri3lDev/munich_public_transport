@@ -149,15 +149,13 @@ async def test_migrate_v2_entry(
     assert _sensor_id(entity_registry, f"{gid}_SUBWAY:U6:H_departure") == (
         departure_entity_id
     )
-    assert _sensor_id(entity_registry, f"{gid}_next_departure") == (
-        f"sensor.{SLUG}_next_departure"
-    )
     assert (
         _sensor_id(entity_registry, f"{gid}_disruptions") == f"sensor.{SLUG}_messages"
     )
-    # Replaced by the action, and the 1.0 leftover.
-    assert hass.states.get(f"sensor.{SLUG}_all_departures") is None
-    assert entity_registry.async_get(f"sensor.{SLUG}_all_departures") is None
+    # Replaced by the action and the departure sensors, and the 1.0 leftover.
+    for removed in ("all_departures", "next_departure"):
+        assert hass.states.get(f"sensor.{SLUG}_{removed}") is None
+        assert entity_registry.async_get(f"sensor.{SLUG}_{removed}") is None
     assert entity_registry.async_get(f"sensor.{SLUG}_u6_frottmaning") is None
 
     entities = er.async_entries_for_config_entry(entity_registry, entry.entry_id)

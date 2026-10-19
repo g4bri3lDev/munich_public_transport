@@ -90,15 +90,6 @@ DIRECTION_SENSORS: tuple[DepartureSensorEntityDescription, ...] = (
     ),
 )
 
-NEXT_DEPARTURE = DepartureSensorEntityDescription(
-    key="next_departure",
-    translation_key="next_departure",
-    device_class=SensorDeviceClass.TIMESTAMP,
-    value_fn=lambda departures: _first(
-        departures, lambda departure: departure.realtime_departure
-    ),
-)
-
 DISRUPTIONS = SensorEntityDescription(
     key="disruptions",
     translation_key="disruptions",
@@ -119,8 +110,7 @@ async def async_setup_entry(
     data = entry.runtime_data
     for station in data.stations.values():
         entities: list[SensorEntity] = [
-            DepartureSensor(station, NEXT_DEPARTURE),
-            DisruptionsSensor(data.messages_coordinator, station),
+            DisruptionsSensor(data.messages_coordinator, station)
         ]
         entities.extend(
             DepartureSensor(station, description, direction)
@@ -134,7 +124,7 @@ async def async_setup_entry(
 class DepartureSensor(
     MunichTransportEntity[MunichTransportDepartureCoordinator], SensorEntity
 ):
-    """A sensor about the upcoming departures of a station or one direction."""
+    """A sensor about the upcoming departures of one direction."""
 
     entity_description: DepartureSensorEntityDescription
 
@@ -142,24 +132,20 @@ class DepartureSensor(
         self,
         station: StationData,
         description: DepartureSensorEntityDescription,
-        direction: StationDirectionOption | None = None,
+        direction: StationDirectionOption,
     ) -> None:
         """Initialize the sensor."""
 
         super().__init__(station.coordinator, station, description, direction)
+        self._selected = (direction,)
 
     @property
     @override
     def native_value(self) -> StateValue:
         """Return the value for the next matching departures."""
 
-        directions = (
-            (self._direction,)
-            if self._direction is not None
-            else self._station.directions
-        )
         return self.entity_description.value_fn(
-            select_departures(self.coordinator.data or [], directions)
+            select_departures(self.coordinator.data or [], self._selected)
         )
 
 

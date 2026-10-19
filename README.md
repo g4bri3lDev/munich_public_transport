@@ -71,7 +71,6 @@ Every station is a device with:
 
 | Entity | Description |
 |---|---|
-| Next departure | Timestamp of the next departure on any selected direction. |
 | Disruptions | Number of active service messages about the station or its lines. |
 
 and for every selected line and direction, for example `U6 → Klinikum Großhadern`:
@@ -180,11 +179,10 @@ automatically on the first start:
 
 - All stations become subentries of one MVG entry. Device IDs are kept, and
   entities keep their entity IDs where there is a direct successor: the line
-  sensors become the departure sensors, `next_departure` stays, and `messages`
-  becomes `disruptions`.
+  sensors become the departure sensors and `messages` becomes `disruptions`.
 - **States are now timestamps** instead of minutes, and the `departures`
   attributes are gone. Use the `get_departures` action instead; the
-  "All departures" sensor is removed.
+  "All departures" and "Next departure" sensors are removed.
 - Legacy directions are matched against MVG's schedule catalog, including
   small spelling differences. Directions that no longer exist are removed and
   logged.

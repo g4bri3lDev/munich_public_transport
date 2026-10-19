@@ -190,15 +190,14 @@ def _station_unique_id(entry_id: str, global_id: str, unique_id: str) -> str | N
     suffix = unique_id.removeprefix(f"{entry_id}_")
     if suffix == unique_id:
         return None
-    if suffix == "next_departure":
-        return f"{global_id}_next_departure"
     if suffix == "messages":
         return f"{global_id}_disruptions"
     if suffix.count(":") == 2:
         # A line/direction sensor; its successor is the departure sensor.
         return f"{global_id}_{suffix}_departure"
-    # all_departures is replaced by the get_departures action, and anything
-    # else is a legacy leftover that never got migrated.
+    # all_departures and next_departure are replaced by the get_departures
+    # action and the departure sensors, and anything else is a legacy
+    # leftover that never got migrated.
     return None
 
 

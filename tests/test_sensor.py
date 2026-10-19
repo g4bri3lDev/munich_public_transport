@@ -38,7 +38,6 @@ HOUR = timedelta(hours=1)
 DEPARTURE = "sensor.munchner_freiheit_u6_klinikum_grosshadern"
 DESTINATION = f"{DEPARTURE}_destination"
 DELAY = f"{DEPARTURE}_delay"
-NEXT_DEPARTURE = "sensor.munchner_freiheit_next_departure"
 DISRUPTIONS = "sensor.munchner_freiheit_disruptions"
 U6_DISRUPTION = "binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption"
 
@@ -153,7 +152,7 @@ async def test_no_departures(
     hass: HomeAssistant, init_integration: MockConfigEntry
 ) -> None:
     """Test sensors report unknown when nothing departs."""
-    for entity_id in (DEPARTURE, DESTINATION, DELAY, NEXT_DEPARTURE):
+    for entity_id in (DEPARTURE, DESTINATION, DELAY):
         assert hass.states.get(entity_id).state == STATE_UNKNOWN
 
 
