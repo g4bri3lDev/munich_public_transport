@@ -222,3 +222,12 @@ async def test_messages_failure_does_not_block_setup(
     assert hass.states.get(DEPARTURE).state != STATE_UNAVAILABLE
     assert hass.states.get(DISRUPTIONS).state == STATE_UNAVAILABLE
     assert hass.states.get(U6_DISRUPTION).state == STATE_UNAVAILABLE
+
+
+async def test_departure_translation_key_follows_transport_type(
+    entity_registry: er.EntityRegistry, init_integration: MockConfigEntry
+) -> None:
+    """Test U-Bahn departures get the U-Bahn icon through their translation key."""
+    entity = entity_registry.async_get(DEPARTURE)
+    assert entity is not None
+    assert entity.translation_key == "departure_subway"

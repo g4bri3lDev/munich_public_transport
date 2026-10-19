@@ -249,6 +249,24 @@
       },
       "following_departure": {
         "name": "{direction} übernächste Abfahrt"
+      },
+      "departure_subway": {
+        "name": "{direction}"
+      },
+      "departure_tram": {
+        "name": "{direction}"
+      },
+      "departure_bus": {
+        "name": "{direction}"
+      },
+      "departure_night_bus": {
+        "name": "{direction}"
+      },
+      "departure_train": {
+        "name": "{direction}"
+      },
+      "departure_replacement_service": {
+        "name": "{direction}"
       }
     },
     "binary_sensor": {

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import override
 
@@ -61,6 +61,21 @@ DIRECTION_SENSORS: tuple[DepartureSensorEntityDescription, ...] = (
     ),
 )
 
+# Catalog schedule kinds and the transport types live departures report, so
+# the departure sensor's translation key, and with it its icon, follows the
+# transport type.
+TRANSPORT_TYPES = {
+    "BAHN": "train",
+    "BUS": "bus",
+    "NIGHT_LINE": "night_bus",
+    "REGIONAL_BUS": "bus",
+    "SBAHN": "train",
+    "SEV": "replacement_service",
+    "SUBWAY": "subway",
+    "TRAM": "tram",
+    "UBAHN": "subway",
+}
+
 DISRUPTIONS = SensorEntityDescription(
     key="disruptions",
     translation_key="disruptions",
@@ -84,12 +99,24 @@ async def async_setup_entry(
             DisruptionsSensor(data.messages_coordinator, station)
         ]
         entities.extend(
-            DepartureSensor(station, description, direction)
+            DepartureSensor(station, _for_transport(description, direction), direction)
             for direction in station.directions
             for description in DIRECTION_SENSORS
         )
         async_add_entities(entities, config_subentry_id=station.subentry_id)
         async_remove_stale_entities(hass, entry, station, Platform.SENSOR, entities)
+
+
+def _for_transport(
+    description: DepartureSensorEntityDescription, direction: StationDirectionOption
+) -> DepartureSensorEntityDescription:
+    """Give the departure sensor the translation key of its transport type."""
+
+    if description.key != "departure" or not (
+        transport := TRANSPORT_TYPES.get(direction.schedule_kind)
+    ):
+        return description
+    return replace(description, translation_key=f"departure_{transport}")
 
 
 class DepartureSensor(
