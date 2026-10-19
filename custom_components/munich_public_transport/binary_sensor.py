@@ -13,7 +13,6 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
-from munich_transport.models import StationDirectionOption
 
 from .coordinator import (
     MunichTransportConfigEntry,
@@ -38,13 +37,16 @@ async def async_setup_entry(
     entry: MunichTransportConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up a disruption sensor for every selected direction."""
+    """Set up a disruption sensor for every line a station has selected."""
 
     data = entry.runtime_data
     for station in data.stations.values():
+        # Service messages name lines, not directions, so both directions of
+        # a line share one sensor.
+        lines = dict.fromkeys(direction.line_label for direction in station.directions)
         entities = [
-            DisruptionBinarySensor(data.messages_coordinator, station, direction)
-            for direction in station.directions
+            DisruptionBinarySensor(data.messages_coordinator, station, line)
+            for line in lines
         ]
         async_add_entities(entities, config_subentry_id=station.subentry_id)
         async_remove_stale_entities(
@@ -57,17 +59,18 @@ class DisruptionBinarySensor(
 ):
     """Whether an active service message names this line at this station."""
 
-    _direction: StationDirectionOption
-
     def __init__(
         self,
         coordinator: MunichTransportMessagesCoordinator,
         station: StationData,
-        direction: StationDirectionOption,
+        line: str,
     ) -> None:
         """Initialize the binary sensor."""
 
-        super().__init__(coordinator, station, DISRUPTION, direction)
+        super().__init__(
+            coordinator, station, DISRUPTION, scope=line, placeholders={"line": line}
+        )
+        self._line = line
 
     @property
     @override
@@ -77,8 +80,6 @@ class DisruptionBinarySensor(
         now = dt_util.utcnow()
         return any(
             message.is_active(now)
-            and message.affects_line(
-                self._direction.line_label, self._station.global_id
-            )
+            and message.affects_line(self._line, self._station.global_id)
             for message in self.coordinator.data or []
         )

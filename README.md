@@ -73,21 +73,25 @@ Every station is a device with:
 |---|---|
 | Disruptions | Number of active service messages about the station or its lines. |
 
+for every selected line, for example `U6`:
+
+| Entity | Description |
+|---|---|
+| `U6 disruption` | On while a service message names the line at this station. |
+
 and for every selected line and direction, for example `U6 → Klinikum Großhadern`:
 
 | Entity | Description | Enabled by default |
 |---|---|---|
 | `U6 → Klinikum Großhadern` | Timestamp of the next departure. | Yes |
-| … destination | Where the next train actually goes; differs during short turns such as `Goetheplatz`. | Yes |
-| … delay | Delay of the next departure in minutes. | Yes |
 | … following departure | Timestamp of the departure after next. | No |
 | … platform | Platform of the next departure. | No |
-| … disruption | On while a service message names the line at this station. | Yes |
 
 Entity names and IDs use the regular terminus from MVG's schedule catalog, so
 they stay the same when trains turn short during construction. Cancelled
 departures are skipped. Timestamps show as relative times such as "in 4 min"
-in the dashboard.
+in the dashboard. The live destination, delay and the full list of departures
+come from the `get_departures` action.
 
 ## Actions
 
@@ -139,12 +143,12 @@ template:
 automation:
   - triggers:
       - trigger: state
-        entity_id: binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption
+        entity_id: binary_sensor.munchner_freiheit_u6_disruption
         to: "on"
     actions:
       - action: notify.mobile_app_phone
         data:
-          message: The U6 to Klinikum Großhadern has a disruption.
+          message: The U6 has a disruption at Münchner Freiheit.
 ```
 
 ### E-paper departure board

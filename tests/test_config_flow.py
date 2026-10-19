@@ -344,5 +344,5 @@ async def test_reconfigure_removes_deselected_entities(
         )
     }
     assert not {uid for uid in unique_ids if "SUBWAY:U6:R" in uid}
-    # One per station, six for the remaining direction.
-    assert len(unique_ids) == 1 + 6
+    # One per station, three for the remaining direction, one for U6.
+    assert len(unique_ids) == 1 + 3 + 1

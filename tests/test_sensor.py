@@ -36,10 +36,8 @@ U3 = Line(label="U3", transport_type="UBAHN", network="swm")
 HOUR = timedelta(hours=1)
 
 DEPARTURE = "sensor.munchner_freiheit_u6_klinikum_grosshadern"
-DESTINATION = f"{DEPARTURE}_destination"
-DELAY = f"{DEPARTURE}_delay"
 DISRUPTIONS = "sensor.munchner_freiheit_disruptions"
-U6_DISRUPTION = "binary_sensor.munchner_freiheit_u6_klinikum_grosshadern_disruption"
+U6_DISRUPTION = "binary_sensor.munchner_freiheit_u6_disruption"
 
 
 def _disruption(
@@ -129,11 +127,10 @@ async def test_disabled_by_default(
 async def test_short_turn_keeps_entity_id(
     hass: HomeAssistant, init_integration: MockConfigEntry
 ) -> None:
-    """Test a short-turn shows in the destination, not the entity id or name."""
-    assert (
-        hass.states.get(DEPARTURE).name == "Münchner Freiheit U6 → Klinikum Großhadern"
-    )
-    assert hass.states.get(DESTINATION).state == "Goetheplatz"
+    """Test a short-turn changes neither the entity id nor the name."""
+    state = hass.states.get(DEPARTURE)
+    assert state.name == "Münchner Freiheit U6 → Klinikum Großhadern"
+    assert state.state == (NOW + timedelta(minutes=4)).isoformat()
 
 
 @pytest.mark.parametrize(
@@ -152,8 +149,7 @@ async def test_no_departures(
     hass: HomeAssistant, init_integration: MockConfigEntry
 ) -> None:
     """Test sensors report unknown when nothing departs."""
-    for entity_id in (DEPARTURE, DESTINATION, DELAY):
-        assert hass.states.get(entity_id).state == STATE_UNKNOWN
+    assert hass.states.get(DEPARTURE).state == STATE_UNKNOWN
 
 
 @pytest.mark.usefixtures("catalog_unreachable")

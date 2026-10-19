@@ -11,9 +11,8 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
-    SensorStateClass,
 )
-from homeassistant.const import Platform, UnitOfTime
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
@@ -26,7 +25,7 @@ from .coordinator import (
     MunichTransportMessagesCoordinator,
     StationData,
 )
-from .entity import MunichTransportEntity, async_remove_stale_entities
+from .entity import MunichTransportEntity, async_remove_stale_entities, direction_label
 
 type StateValue = datetime | str | int | None
 
@@ -49,23 +48,6 @@ DIRECTION_SENSORS: tuple[DepartureSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=lambda departures: _first(
             departures, lambda departure: departure.realtime_departure
-        ),
-    ),
-    DepartureSensorEntityDescription(
-        key="destination",
-        translation_key="destination",
-        value_fn=lambda departures: _first(
-            departures, lambda departure: departure.destination
-        ),
-    ),
-    DepartureSensorEntityDescription(
-        key="delay",
-        translation_key="delay",
-        device_class=SensorDeviceClass.DURATION,
-        native_unit_of_measurement=UnitOfTime.MINUTES,
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda departures: _first(
-            departures, lambda departure: departure.delay_minutes or 0
         ),
     ),
     DepartureSensorEntityDescription(
@@ -136,7 +118,13 @@ class DepartureSensor(
     ) -> None:
         """Initialize the sensor."""
 
-        super().__init__(station.coordinator, station, description, direction)
+        super().__init__(
+            station.coordinator,
+            station,
+            description,
+            scope=direction.id,
+            placeholders={"direction": direction_label(direction)},
+        )
         self._selected = (direction,)
 
     @property

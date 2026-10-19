@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -23,7 +23,7 @@ from .coordinator import StationData
 class MunichTransportEntity[CoordinatorT: DataUpdateCoordinator[Any]](
     CoordinatorEntity[CoordinatorT]
 ):
-    """An entity on a station device, optionally for one line/direction.
+    """An entity on a station device, for the station, a line or a direction.
 
     Generic over the coordinator, since departure entities follow their
     station's coordinator and disruption entities the shared messages one.
@@ -37,22 +37,24 @@ class MunichTransportEntity[CoordinatorT: DataUpdateCoordinator[Any]](
         coordinator: CoordinatorT,
         station: StationData,
         description: EntityDescription,
-        direction: StationDirectionOption | None = None,
+        *,
+        scope: str | None = None,
+        placeholders: Mapping[str, str] | None = None,
     ) -> None:
-        """Initialize the entity."""
+        """Initialize the entity.
+
+        `scope` narrows the unique id to a line or direction of the station,
+        and `placeholders` fill the translated name.
+        """
 
         super().__init__(coordinator)
         self.entity_description = description
         self._station = station
-        self._direction = direction
 
-        prefix = station.global_id
-        if direction is not None:
-            prefix = f"{prefix}_{direction.id}"
-            self._attr_translation_placeholders = {
-                "direction": direction_label(direction)
-            }
+        prefix = station.global_id if scope is None else f"{station.global_id}_{scope}"
         self._attr_unique_id = f"{prefix}_{description.key}"
+        if placeholders:
+            self._attr_translation_placeholders = dict(placeholders)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, station.global_id)},
             name=station.name,

@@ -7,12 +7,6 @@
       "departure": {
         "default": "mdi:train-car"
       },
-      "destination": {
-        "default": "mdi:sign-direction"
-      },
-      "delay": {
-        "default": "mdi:clock-alert-outline"
-      },
       "following_departure": {
         "default": "mdi:train-car"
       },

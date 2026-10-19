@@ -247,12 +247,6 @@
       "departure": {
         "name": "{direction}"
       },
-      "destination": {
-        "name": "{direction} Ziel"
-      },
-      "delay": {
-        "name": "{direction} Verspätung"
-      },
       "following_departure": {
         "name": "{direction} übernächste Abfahrt"
       },
@@ -262,7 +256,7 @@
     },
     "binary_sensor": {
       "disruption": {
-        "name": "{direction} Störung"
+        "name": "{line} Störung"
       }
     }
   },
