@@ -15,6 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import MunichTransportError
 from munich_transport.models import Station, StationDirectionOption
+from munich_transport.schedules import build_departure_direction_options
 from munich_transport.transport import AiohttpTransport
 
 from .const import (
@@ -34,7 +35,7 @@ from .coordinator import (
     MunichTransportDepartureCoordinator,
     MunichTransportMessagesCoordinator,
 )
-from .models import (
+from .selection import (
     DirectionSelection,
     direction_selection_from_option,
     fallback_direction_selection,
@@ -189,7 +190,9 @@ async def _station_direction_options(
         return await client.station_direction_options_by_abbreviation(
             station.abbreviation,
         )
-    return await client.station_direction_options(station.global_id)
+    return build_departure_direction_options(
+        await client.departures(station.global_id),
+    )
 
 
 async def _migrate_legacy_registries(
@@ -285,14 +288,17 @@ async def _load_direction_selections(
     abbreviation = entry.data.get(CONF_STATION_ABBREVIATION)
 
     try:
-        if abbreviation:
-            options = await client.station_direction_options_by_abbreviation(
-                abbreviation,
-            )
-        else:
-            options = await client.station_direction_options(
-                entry.data[CONF_STATION_GLOBAL_ID],
-            )
+        options = await _station_direction_options(
+            client,
+            Station(
+                global_id=entry.data[CONF_STATION_GLOBAL_ID],
+                name=entry.data[CONF_NAME],
+                place=entry.data.get(CONF_STATION_PLACE),
+                latitude=0.0,
+                longitude=0.0,
+                abbreviation=abbreviation,
+            ),
+        )
     except MunichTransportError:
         options = ()
 

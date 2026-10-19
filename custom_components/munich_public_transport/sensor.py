@@ -55,7 +55,7 @@ from .coordinator import (
     MunichTransportDepartureCoordinator,
     MunichTransportMessagesCoordinator,
 )
-from .models import DirectionSelection
+from .selection import DirectionSelection
 
 ATTRIBUTION = "Data provided by MVG"
 DEFAULT_ICON = "mdi:train-car"

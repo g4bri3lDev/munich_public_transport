@@ -20,6 +20,7 @@ from homeassistant.helpers.selector import (
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import MunichTransportError, ParseError
 from munich_transport.models import Location, Station, StationDirectionOption
+from munich_transport.schedules import build_departure_direction_options
 from munich_transport.transport import AiohttpTransport
 
 from .const import (
@@ -29,7 +30,7 @@ from .const import (
     CONF_STATION_PLACE,
     DOMAIN,
 )
-from .models import direction_selection_from_option
+from .selection import direction_selection_from_option
 
 CONF_QUERY = "query"
 CONF_SELECTED_STATION = "selected_station"
@@ -238,7 +239,9 @@ async def _fetch_direction_options(
         return await client.station_direction_options_by_abbreviation(
             station.abbreviation,
         )
-    return await client.station_direction_options(station.global_id)
+    return build_departure_direction_options(
+        await client.departures(station.global_id),
+    )
 
 
 def _station_choices(locations: Mapping[str, Location]) -> dict[str, str]:

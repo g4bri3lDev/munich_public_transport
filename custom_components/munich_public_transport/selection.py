@@ -1,4 +1,4 @@
-"""Integration-local value objects."""
+"""Integration-local selected direction helpers."""
 
 from __future__ import annotations
 
