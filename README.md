@@ -21,7 +21,7 @@ upcoming departures for dashboards and e-paper displays.
 
 It is built on the standalone
 [`munich-transport`](https://github.com/g4bri3lDev/munich-transport) Python
-package and follows the conventions of Home Assistant core integrations.
+package.
 
 ## Use cases
 
