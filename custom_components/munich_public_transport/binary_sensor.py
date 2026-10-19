@@ -12,7 +12,6 @@ from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 from munich_transport.models import StationDirectionOption
 
@@ -54,9 +53,7 @@ async def async_setup_entry(
 
 
 class DisruptionBinarySensor(
-    MunichTransportEntity,
-    CoordinatorEntity[MunichTransportMessagesCoordinator],
-    BinarySensorEntity,
+    MunichTransportEntity[MunichTransportMessagesCoordinator], BinarySensorEntity
 ):
     """Whether an active service message names this line at this station."""
 
@@ -70,8 +67,7 @@ class DisruptionBinarySensor(
     ) -> None:
         """Initialize the binary sensor."""
 
-        CoordinatorEntity.__init__(self, coordinator)
-        MunichTransportEntity.__init__(self, station, DISRUPTION, direction)
+        super().__init__(coordinator, station, DISRUPTION, direction)
 
     @property
     @override

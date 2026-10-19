@@ -16,7 +16,6 @@ from homeassistant.components.sensor import (
 from homeassistant.const import Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 from munich_transport.models import Departure, StationDirectionOption
 from munich_transport.schedules import select_departures
@@ -133,9 +132,7 @@ async def async_setup_entry(
 
 
 class DepartureSensor(
-    MunichTransportEntity,
-    CoordinatorEntity[MunichTransportDepartureCoordinator],
-    SensorEntity,
+    MunichTransportEntity[MunichTransportDepartureCoordinator], SensorEntity
 ):
     """A sensor about the upcoming departures of a station or one direction."""
 
@@ -149,8 +146,7 @@ class DepartureSensor(
     ) -> None:
         """Initialize the sensor."""
 
-        CoordinatorEntity.__init__(self, station.coordinator)
-        MunichTransportEntity.__init__(self, station, description, direction)
+        super().__init__(station.coordinator, station, description, direction)
 
     @property
     @override
@@ -168,9 +164,7 @@ class DepartureSensor(
 
 
 class DisruptionsSensor(
-    MunichTransportEntity,
-    CoordinatorEntity[MunichTransportMessagesCoordinator],
-    SensorEntity,
+    MunichTransportEntity[MunichTransportMessagesCoordinator], SensorEntity
 ):
     """Number of active service messages about a station or its lines."""
 
@@ -181,8 +175,7 @@ class DisruptionsSensor(
     ) -> None:
         """Initialize the sensor."""
 
-        CoordinatorEntity.__init__(self, coordinator)
-        MunichTransportEntity.__init__(self, station, DISRUPTIONS)
+        super().__init__(coordinator, station, DISRUPTIONS)
 
     @property
     @override

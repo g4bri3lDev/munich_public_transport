@@ -3,32 +3,45 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity import Entity, EntityDescription
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 from munich_transport.models import StationDirectionOption
 
 from .const import ATTRIBUTION, DOMAIN
 from .coordinator import StationData
 
 
-class MunichTransportEntity(Entity):
-    """An entity on a station device, optionally for one line/direction."""
+class MunichTransportEntity[CoordinatorT: DataUpdateCoordinator[Any]](
+    CoordinatorEntity[CoordinatorT]
+):
+    """An entity on a station device, optionally for one line/direction.
+
+    Generic over the coordinator, since departure entities follow their
+    station's coordinator and disruption entities the shared messages one.
+    """
 
     _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
 
     def __init__(
         self,
+        coordinator: CoordinatorT,
         station: StationData,
         description: EntityDescription,
         direction: StationDirectionOption | None = None,
     ) -> None:
         """Initialize the entity."""
 
+        super().__init__(coordinator)
         self.entity_description = description
         self._station = station
         self._direction = direction
