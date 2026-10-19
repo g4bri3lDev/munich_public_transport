@@ -53,6 +53,13 @@ exclude_also = [
     "raise NotImplementedError",
 ]
 
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["custom_components"]
+# Home Assistant's own modules are typed; the library ships py.typed.
+warn_unreachable = true
+
 [tool.ruff]
 target-version = "py314"
 exclude = [".venv", "config", "scripts"]
