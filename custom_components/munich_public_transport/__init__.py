@@ -221,11 +221,20 @@ async def _migrate_legacy_registries(
         old_station_name=old_station_name,
         direction_options=direction_options,
     )
+    legacy_prefix = f"{entry.entry_id}_{old_station_name}_"
 
     @callback
     def migrate_entity(entity_entry: er.RegistryEntry) -> dict[str, str] | None:
         new_unique_id = unique_id_map.get(entity_entry.unique_id)
         if new_unique_id is None:
+            # A legacy direction no catalog option covers would otherwise keep
+            # its old unique id and linger as an orphaned entity.
+            if entity_entry.unique_id.startswith(legacy_prefix):
+                _LOGGER.info(
+                    "Removing legacy MVG entity %s without a matching direction",
+                    entity_entry.entity_id,
+                )
+                entity_registry.async_remove(entity_entry.entity_id)
             return None
 
         existing_entity_id = entity_registry.async_get_entity_id(

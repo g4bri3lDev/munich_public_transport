@@ -128,21 +128,17 @@ async def test_migrate_legacy_entry(
     assert "Fröttmaning" in caplog.text
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "An unmatched legacy direction keeps its old unique id and lingers as "
-        "an orphaned entity (sensor.dietlindenstrasse_u6_frottmaning on the "
-        "live system)"
-    ),
-)
 async def test_migrate_removes_unmatched_entities(
     hass: HomeAssistant,
     entity_registry: er.EntityRegistry,
     mock_client: MagicMock,
     legacy_entry: MockConfigEntry,
 ) -> None:
-    """Test entities for directions that cannot be migrated are removed."""
+    """Test entities for directions that cannot be migrated are removed.
+
+    Before this was fixed they kept their old unique id and lingered as
+    orphans, like sensor.dietlindenstrasse_u6_frottmaning on a live system.
+    """
     assert await hass.config_entries.async_setup(legacy_entry.entry_id)
     await hass.async_block_till_done()
 
