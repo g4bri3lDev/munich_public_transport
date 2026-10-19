@@ -1,0 +1,124 @@
+blueprint:
+  name: MVG departure board for OpenEPaperLink
+  description: >
+    Draws the next departures of a Munich Public Transport station on one or
+    more OpenEPaperLink e-paper tags (2.6" and 2.9"). Uses the
+    munich_public_transport.get_departures action, which answers from the
+    integration's cache and adds no requests to MVG.
+  domain: automation
+  author: g4bri3lDev
+  homeassistant:
+    min_version: 2026.10.0
+
+  input:
+    station:
+      name: Station
+      description: Station to show.
+      selector:
+        device:
+          filter:
+            - integration: munich_public_transport
+    displays:
+      name: E-paper displays
+      description: One or more tags.
+      selector:
+        device:
+          filter:
+            - integration: open_epaper_link
+          multiple: true
+    rows:
+      name: Rows
+      description: How many departures to show.
+      default: 6
+      selector:
+        number:
+          min: 1
+          max: 6
+    font_file:
+      name: Font file
+      description: Font file to use for text.
+      default: "ppb.ttf"
+      selector:
+        text:
+
+mode: single
+
+triggers:
+  - trigger: time_pattern
+    minutes: /5
+
+variables:
+  font_file: !input font_file
+  rows: !input rows
+
+actions:
+  - action: munich_public_transport.get_departures
+    data:
+      device_id: !input station
+    response_variable: board
+  - variables:
+      departures: >
+        {{ (board.departures | rejectattr('cancelled') | list)[:rows | int] }}
+  - action: open_epaper_link.drawcustom
+    target:
+      device_id: !input displays
+    data:
+      background: white
+      rotate: 0
+      payload: >
+        [
+          {
+            "type": "text",
+            "value": "{{ board.station.name }}",
+            "x": "50%",
+            "y": 10,
+            "font": "{{ font_file }}",
+            "anchor": "mm",
+            "size": 20
+          },
+          {
+            "type": "line",
+            "x_start": 0,
+            "x_end": 296,
+            "y_start": 25,
+            "y_end": 25,
+            "fill": "black",
+            "width": 1
+          },
+          {% for departure in departures %}
+            {
+              "type": "rectangle",
+              "x_start": 5,
+              "x_end": 40,
+              "y_start": {{ 28 + loop.index0 * 20 }},
+              "y_end": {{ 46 + loop.index0 * 20 }},
+              "fill": "accent",
+              "color": "accent",
+              "width": 1
+            },
+            {
+              "type": "text",
+              "x": 23,
+              "y": {{ 38 + loop.index0 * 20 }},
+              "color": "white",
+              "value": "{{ departure.line }}",
+              "anchor": "mm"
+            },
+            {
+              "type": "text",
+              "x": 45,
+              "y": {{ 38 + loop.index0 * 20 }},
+              "color": "black",
+              "value": "{{ departure.destination }}",
+              "anchor": "lm"
+            },
+            {
+              "type": "text",
+              "x": 294,
+              "y": {{ 38 + loop.index0 * 20 }},
+              "color": "{{ 'accent' if departure.delay > 0 else 'black' }}",
+              "value": "{{ as_timestamp(departure.realtime_departure) | timestamp_custom('%H:%M') }}",
+              "anchor": "rm"
+            }{{ "," if not loop.last }}
+          {% endfor %}
+        ]
