@@ -297,11 +297,21 @@
     "station_unavailable": {
       "message": "Für {station} sind gerade keine Abfahrtsdaten verfügbar."
     },
-    "temporarily_unavailable": "MVG ist vorübergehend nicht erreichbar (HTTP {status}).",
-    "api_error": "MVG hat HTTP {status} zurückgegeben.",
-    "cannot_connect": "Verbindung zu MVG fehlgeschlagen: {error}",
-    "migration_cannot_connect": "MVG ist für die Migration von {title} nicht erreichbar; neuer Versuch folgt.",
-    "legacy_entry_without_station": "{title} wurde mit einer alten Version eingerichtet und enthält keine Haltestelle; entferne den Eintrag und füge die Haltestelle neu hinzu."
+    "temporarily_unavailable": {
+      "message": "MVG ist vorübergehend nicht erreichbar (HTTP {status})."
+    },
+    "api_error": {
+      "message": "MVG hat HTTP {status} zurückgegeben."
+    },
+    "cannot_connect": {
+      "message": "Verbindung zu MVG fehlgeschlagen: {error}"
+    },
+    "migration_cannot_connect": {
+      "message": "MVG ist für die Migration von {title} nicht erreichbar; neuer Versuch folgt."
+    },
+    "legacy_entry_without_station": {
+      "message": "{title} wurde mit einer alten Version eingerichtet und enthält keine Haltestelle; entferne den Eintrag und füge die Haltestelle neu hinzu."
+    }
   },
   "issues": {
     "legacy_entry_without_station": {

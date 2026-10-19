@@ -1,9 +1,6 @@
 {
   "domain": "munich_public_transport",
   "name": "Munich Public Transport",
-  "categories": [
-    "vehicles_transport.public_transport"
-  ],
   "codeowners": [
     "@g4bri3lDev"
   ],

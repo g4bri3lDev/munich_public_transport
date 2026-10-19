@@ -297,11 +297,21 @@
     "station_unavailable": {
       "message": "No departure data is available for {station} right now."
     },
-    "temporarily_unavailable": "MVG is temporarily unavailable (HTTP {status}).",
-    "api_error": "MVG returned HTTP {status}.",
-    "cannot_connect": "Could not connect to MVG: {error}",
-    "migration_cannot_connect": "Could not reach MVG to migrate {title}; retrying.",
-    "legacy_entry_without_station": "{title} was set up with an old version and has no station; remove it and add the station again."
+    "temporarily_unavailable": {
+      "message": "MVG is temporarily unavailable (HTTP {status})."
+    },
+    "api_error": {
+      "message": "MVG returned HTTP {status}."
+    },
+    "cannot_connect": {
+      "message": "Could not connect to MVG: {error}"
+    },
+    "migration_cannot_connect": {
+      "message": "Could not reach MVG to migrate {title}; retrying."
+    },
+    "legacy_entry_without_station": {
+      "message": "{title} was set up with an old version and has no station; remove it and add the station again."
+    }
   },
   "issues": {
     "legacy_entry_without_station": {
