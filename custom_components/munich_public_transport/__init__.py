@@ -226,6 +226,12 @@ async def _migrate_legacy_registries(
     @callback
     def migrate_entity(entity_entry: er.RegistryEntry) -> dict[str, str] | None:
         new_unique_id = unique_id_map.get(entity_entry.unique_id)
+        if new_unique_id is None and entity_entry.unique_id.startswith(legacy_prefix):
+            new_unique_id = _fuzzy_legacy_unique_id(
+                entry,
+                entity_entry.unique_id.removeprefix(legacy_prefix),
+                direction_options,
+            )
         if new_unique_id is None:
             # A legacy direction no catalog option covers would otherwise keep
             # its old unique id and linger as an orphaned entity.
@@ -252,6 +258,30 @@ async def _migrate_legacy_registries(
         return {"new_unique_id": new_unique_id}
 
     await er.async_migrate_entries(hass, entry.entry_id, migrate_entity)
+
+
+def _fuzzy_legacy_unique_id(
+    entry: ConfigEntry,
+    line_and_direction: str,
+    direction_options: list[StationDirectionOption],
+) -> str | None:
+    """Match a legacy "<line>_<direction>" suffix like the direction selection does.
+
+    The exact variants in the unique id map miss spelling differences such as
+    "Tierpark (Alemannenstr)" against the catalog's "Tierpark (Alemannenstr.)".
+    """
+
+    line_label, separator, direction = line_and_direction.partition("_")
+    if not separator:
+        return None
+
+    for option in direction_options:
+        if option.line_label == line_label and any(
+            _directions_match(direction, option_direction)
+            for option_direction in (*option.directions, *option.raw_directions)
+        ):
+            return f"{entry.entry_id}_{option.id}"
+    return None
 
 
 def _legacy_entity_unique_id_map(

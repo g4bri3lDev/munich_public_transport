@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from munich_transport.exceptions import MunichTransportError
+from munich_transport.models import StationDirectionOption
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -148,6 +149,54 @@ async def test_migrate_removes_unmatched_entities(
         )
         is None
     )
+
+
+async def test_migrate_entity_with_punctuation_difference(
+    hass: HomeAssistant,
+    entity_registry: er.EntityRegistry,
+    mock_client: MagicMock,
+) -> None:
+    """Test entities are remapped with the same fuzzy match as the selection.
+
+    The old integration stored "Tierpark (Alemannenstr)" while the catalog
+    spells it "Tierpark (Alemannenstr.)", as for bus 52 at Sendlinger Tor.
+    The direction was selected but its entity was removed and recreated
+    under a new entity id, losing its history.
+    """
+    bus_52 = StationDirectionOption(
+        id="BUS:52:H",
+        schedule_kind="BUS",
+        line_label="52",
+        direction_key="H",
+        directions=("Tierpark",),
+        raw_directions=("Tierpark (Alemannenstr.)",),
+        schedule_codes=("H",),
+    )
+    mock_client.station_direction_options_by_abbreviation.return_value = [bus_52]
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        version=1,
+        data={
+            **LEGACY_DATA,
+            "lines": ["52"],
+            "directions": ["Tierpark (Alemannenstr)"],
+        },
+    )
+    entry.add_to_hass(hass)
+    entity_id = entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        f"{entry.entry_id}_{LEGACY_NAME}_52_Tierpark (Alemannenstr)",
+        config_entry=entry,
+    ).entity_id
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entry.options == {CONF_DIRECTION_OPTION_IDS: ["BUS:52:H"]}
+    entity = entity_registry.async_get(entity_id)
+    assert entity is not None
+    assert entity.unique_id == f"{entry.entry_id}_BUS:52:H"
 
 
 async def test_migrate_prefers_legacy_options(
