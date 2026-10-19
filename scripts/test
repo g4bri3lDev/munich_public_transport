@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Run the test suite.
+#
+#   scripts/test              # against the pinned latest Home Assistant
+#   scripts/test --min-ha     # against the hacs.json floor
+#   scripts/test -k config    # any other argument is passed through to pytest
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+group="dev"
+if [ "${1:-}" = "--min-ha" ]; then
+    group="min-ha"
+    shift
+fi
+
+exec uv run --no-default-groups --group "$group" pytest "$@"

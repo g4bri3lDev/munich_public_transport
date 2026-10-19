@@ -10,3 +10,11 @@ gen
 # Python
 __pycache__/
 *.py[cod]
+
+# Tooling
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml

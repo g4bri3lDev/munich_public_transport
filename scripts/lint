@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Fix what can be fixed, then report what cannot.
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+uv run ruff check . --fix
+uv run ruff format .

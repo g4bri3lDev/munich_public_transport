@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Create the test environment.
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+uv sync --group dev
