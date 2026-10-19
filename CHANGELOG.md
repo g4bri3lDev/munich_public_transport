@@ -3,6 +3,12 @@
 ## [1.0.0](https://github.com/g4bri3lDev/munich_public_transport/compare/0.0.7...1.0.0) (2026-10-19)
 
 
+### ⚠ BREAKING CHANGES
+
+* Requires Home Assistant 2026.7.0 or newer (previously 2024.7.0).
+* Existing stations are migrated automatically and keep their entity IDs, but entity unique IDs and some attributes changed. Templates reading attributes from 0.0.7 may need updating, and sensors for directions that no longer exist in MVG's schedule catalog are removed.
+
+
 ### Features
 
 * migrate legacy station entries ([7c8baad](https://github.com/g4bri3lDev/munich_public_transport/commit/7c8baada3d963ea1cd01092f625eb48dd0a7daa2))
@@ -17,11 +23,3 @@
 * derive line sensor entity ids from the catalog terminus ([6f0beb4](https://github.com/g4bri3lDev/munich_public_transport/commit/6f0beb4b5e51aa722113a860b4f09a570cd6c326))
 * remap legacy entities with the same fuzzy match as the direction selection ([9d9330c](https://github.com/g4bri3lDev/munich_public_transport/commit/9d9330cbcf30856614ecb73e42c98e63faeafd0a))
 * remove legacy entities whose direction cannot be migrated ([f15939a](https://github.com/g4bri3lDev/munich_public_transport/commit/f15939a947e4bf9b50a2a8968ad1ea21be9b985e))
-
-
-### Miscellaneous Chores
-
-* release 0.1.0 ([d95a9aa](https://github.com/g4bri3lDev/munich_public_transport/commit/d95a9aae41f5b90b92546c7eea7a16bf5c38e0c6))
-* release 1.0.0 ([2b1dc59](https://github.com/g4bri3lDev/munich_public_transport/commit/2b1dc59b1ce6028bfa93a2c991597effbc9110be))
-
-## Changelog
