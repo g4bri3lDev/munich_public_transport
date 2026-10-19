@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 import re
-from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import MunichTransportError
 from munich_transport.models import Station, StationDirectionOption
@@ -260,9 +258,7 @@ def _legacy_entity_unique_id_map(
         f"{entry.entry_id}_{old_station_name}_all_departures": (
             f"{entry.entry_id}_all_departures"
         ),
-        f"{entry.entry_id}_{old_station_name}_messages": (
-            f"{entry.entry_id}_messages"
-        ),
+        f"{entry.entry_id}_{old_station_name}_messages": f"{entry.entry_id}_messages",
     }
 
     for option in direction_options:

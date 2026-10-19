@@ -7,7 +7,6 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import ApiError, MunichTransportError
 from munich_transport.models import Departure, Disruption

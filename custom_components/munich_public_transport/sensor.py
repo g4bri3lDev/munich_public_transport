@@ -17,7 +17,6 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
-
 from munich_transport.models import Departure, Disruption
 
 from .const import (
@@ -273,9 +272,7 @@ class MunichTransportLineDepartureSensor(MunichTransportBaseSensor):
         super().__init__(entry, coordinator)
         self._selection = selection
         self._attr_name = self._display_label
-        self._attr_suggested_object_id = (
-            f"{entry.data[CONF_NAME]} {selection.label}"
-        )
+        self._attr_suggested_object_id = f"{entry.data[CONF_NAME]} {selection.label}"
         self._attr_unique_id = f"{entry.entry_id}_{selection.id}"
         self._refresh_extra_state_attributes()
 
@@ -396,10 +393,7 @@ class MunichTransportMessagesSensor(
     def _refresh_extra_state_attributes(self) -> None:
         self._attr_extra_state_attributes = {
             ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_MESSAGES: [
-                _message_attributes(message)
-                for message in self._messages
-            ],
+            ATTR_MESSAGES: [_message_attributes(message) for message in self._messages],
         }
 
     @property
@@ -533,10 +527,7 @@ def _format_message_validity(message: Disruption) -> str:
         local_from = dt_util.as_local(valid_from)
         local_to = dt_util.as_local(valid_to)
         if local_from.date() == local_to.date():
-            return (
-                f"{local_from:%d.%m.%Y} "
-                f"{local_from:%H:%M} - {local_to:%H:%M}"
-            )
+            return f"{local_from:%d.%m.%Y} {local_from:%H:%M} - {local_to:%H:%M}"
         return f"{local_from:%d.%m.%Y %H:%M} - {local_to:%d.%m.%Y %H:%M}"
 
     if valid_from is not None:

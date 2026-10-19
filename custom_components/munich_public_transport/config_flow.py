@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
 from homeassistant.data_entry_flow import section
@@ -16,12 +15,12 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
     SelectSelectorMode,
 )
-
 from munich_transport.client import MunichTransportClient
 from munich_transport.exceptions import MunichTransportError, ParseError
 from munich_transport.models import Location, Station, StationDirectionOption
 from munich_transport.schedules import build_departure_direction_options
 from munich_transport.transport import AiohttpTransport
+import voluptuous as vol
 
 from .const import (
     CONF_DIRECTION_OPTION_IDS,
