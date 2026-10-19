@@ -7,6 +7,7 @@ from unittest.mock import MagicMock
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import entity_registry as er
 from munich_transport.exceptions import MunichTransportError, ParseError
 from munich_transport.models import Location, Station, StationDirectionOption
 import pytest
@@ -322,3 +323,26 @@ async def test_reconfigure_station_cannot_connect(
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "cannot_connect"
     assert init_integration.subentries[SUBENTRY_ID].data == STATION_DATA
+
+
+async def test_reconfigure_removes_deselected_entities(
+    hass: HomeAssistant,
+    entity_registry: er.EntityRegistry,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test dropping a direction removes its entities instead of orphaning them."""
+    result = await _start_reconfigure(hass, init_integration)
+    await hass.config_entries.subentries.async_configure(
+        result["flow_id"], SUBWAY_SECTION
+    )
+    await hass.async_block_till_done()
+
+    unique_ids = {
+        entity.unique_id
+        for entity in er.async_entries_for_config_entry(
+            entity_registry, init_integration.entry_id
+        )
+    }
+    assert not {uid for uid in unique_ids if "SUBWAY:U6:R" in uid}
+    # Two per station, six for the remaining direction.
+    assert len(unique_ids) == 2 + 6

@@ -9,6 +9,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -20,7 +21,7 @@ from .coordinator import (
     MunichTransportMessagesCoordinator,
     StationData,
 )
-from .entity import MunichTransportEntity
+from .entity import MunichTransportEntity, async_remove_stale_entities
 
 DISRUPTION = BinarySensorEntityDescription(
     key="disruption",
@@ -42,12 +43,13 @@ async def async_setup_entry(
 
     data = entry.runtime_data
     for station in data.stations.values():
-        async_add_entities(
-            (
-                DisruptionBinarySensor(data.messages_coordinator, station, direction)
-                for direction in station.directions
-            ),
-            config_subentry_id=station.subentry_id,
+        entities = [
+            DisruptionBinarySensor(data.messages_coordinator, station, direction)
+            for direction in station.directions
+        ]
+        async_add_entities(entities, config_subentry_id=station.subentry_id)
+        async_remove_stale_entities(
+            hass, entry, station, Platform.BINARY_SENSOR, entities
         )
 
 
