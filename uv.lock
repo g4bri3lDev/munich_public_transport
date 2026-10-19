@@ -1839,7 +1839,7 @@ min-ha = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "munich-transport", specifier = "==0.1.1" }]
+requires-dist = [{ name = "munich-transport", specifier = "==0.2.0" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1855,15 +1855,15 @@ min-ha = [
 
 [[package]]
 name = "munich-transport"
-version = "0.1.1"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-37-munich-public-transport-homeassistant-min-ha'" },
     { name = "aiohttp", version = "3.14.5", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-37-munich-public-transport-homeassistant-dev' or extra != 'group-37-munich-public-transport-homeassistant-min-ha'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/1a/3dec4ee8f9510335093aa3125b80a2959adcdff4954557402aadded057a2/munich_transport-0.1.1.tar.gz", hash = "sha256:8a6ea2944f20bb2d5abf5a7f67a99a98703dc1decd976bcb1840a02ded292620", size = 87503, upload-time = "2026-05-21T15:47:11.872Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/b8/c11abd47c443a7a57a74ab8cbd8ef833978db940231263b3d0ece320262f/munich_transport-0.2.0.tar.gz", hash = "sha256:e426876dfee707cbc3b702e61c62b002c856d68462ee0f1809ab13d3eee6dcb2", size = 91122, upload-time = "2026-10-19T13:38:52.586Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/88/ca8eb6bc681c3c593567e82330ded7ff50e70e08080ab437fcdd27c66329/munich_transport-0.1.1-py3-none-any.whl", hash = "sha256:7fb379c53196e2ac78c4c6cfec703bda5b44cc242331cb5c19c85350caa5d98e", size = 17035, upload-time = "2026-05-21T15:47:10.232Z" },
+    { url = "https://files.pythonhosted.org/packages/32/5b/3075b01e777f049cf443a1157f8f025bc5d4017eef37dadf475ed000b98b/munich_transport-0.2.0-py3-none-any.whl", hash = "sha256:a41edb5d5abb75742c10ca33460c15dec6debd42e2a649cbfd5df3d6ad9a24b7", size = 18928, upload-time = "2026-10-19T13:38:51.294Z" },
 ]
 
 [[package]]

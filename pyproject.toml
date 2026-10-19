@@ -10,7 +10,7 @@ requires-python = ">=3.14.2"
 # voluptuous) is supplied by Home Assistant itself, which the test dependency
 # groups pin transitively.
 dependencies = [
-    "munich-transport==0.1.2",
+    "munich-transport==0.2.0",
 ]
 
 [dependency-groups]
