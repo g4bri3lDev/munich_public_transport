@@ -271,10 +271,18 @@ class MunichTransportLineDepartureSensor(MunichTransportBaseSensor):
 
         super().__init__(entry, coordinator)
         self._selection = selection
-        self._attr_name = self._display_label
-        self._attr_suggested_object_id = f"{entry.data[CONF_NAME]} {selection.label}"
+        # The entity id is derived from the name at registration, so register
+        # under the stable catalog terminus rather than the live destination,
+        # which may be a short turn.
+        self._attr_name = selection.label
         self._attr_unique_id = f"{entry.entry_id}_{selection.id}"
         self._refresh_extra_state_attributes()
+
+    async def async_added_to_hass(self) -> None:
+        """Switch to the live destination once the entity id is assigned."""
+
+        await super().async_added_to_hass()
+        self._attr_name = self._display_label
 
     def _handle_coordinator_update(self) -> None:
         """Update the current display name before writing state."""

@@ -86,14 +86,6 @@ async def test_line_sensor_name_follows_destination(
     assert state.attributes["destination"] == "Goetheplatz"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "The entity id is derived from the live name at creation, so a "
-        "short-turn departure at setup time bakes its destination into the "
-        "entity id instead of the stable catalog terminus"
-    ),
-)
 async def test_line_sensor_entity_id_uses_terminus(
     hass: HomeAssistant,
     mock_client: MagicMock,
