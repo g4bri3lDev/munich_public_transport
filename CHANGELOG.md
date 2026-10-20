@@ -5,41 +5,29 @@
 
 ### ⚠ BREAKING CHANGES
 
-* remove the station next departure sensor
-* one disruption sensor per line and no delay or destination sensors
-* remove the platform sensor
-* one MVG entry with a subentry per station
-* remove the station next departure sensor
-* one disruption sensor per line and no delay or destination sensors
-* remove the platform sensor
-* one MVG entry with a subentry per station
+* Requires Home Assistant 2026.10.0 or newer.
+* All stations become subentries of one MVG entry. Existing stations are migrated automatically and keep their device IDs, and entities with a direct successor keep their entity IDs.
+* Departure sensors report the next departure as a timestamp and no longer carry departures, delays, destinations, platforms or messages as attributes. Use the `get_departures` action instead.
+* The All departures, Next departure, delay, destination and platform sensors are removed. Disruptions are one binary sensor per line.
 
 ### Features
 
-* one disruption sensor per line and no delay or destination sensors ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* one disruption sensor per line and no delay or destination sensors ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
-* one MVG entry with a subentry per station ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* one MVG entry with a subentry per station ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
-* remove the platform sensor ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* remove the platform sensor ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
-* remove the station next departure sensor ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* remove the station next departure sensor ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
+* one MVG entry with a subentry per station ([972fd2e](https://github.com/g4bri3lDev/munich_public_transport/commit/972fd2e1b1542428146b6873e52dbe14ee2552d4))
+* remove the station next departure sensor ([3f608cf](https://github.com/g4bri3lDev/munich_public_transport/commit/3f608cf182b29382c439fd2d2c593188686e74d3))
+* one disruption sensor per line and no delay or destination sensors ([5c2bdb4](https://github.com/g4bri3lDev/munich_public_transport/commit/5c2bdb4d60ab03222aec608863c7daf3bd1cc7f0))
+* remove the platform sensor ([426eda9](https://github.com/g4bri3lDev/munich_public_transport/commit/426eda9f692c746f2415be57ca8ffb6bf8bf4888))
 
 
 ### Bug Fixes
 
-* give exception translations a message and drop manifest categories ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* give exception translations a message and drop manifest categories ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
-* remove entities of directions a station no longer selects ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* remove entities of directions a station no longer selects ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
-* show the transport type icon on departure sensors ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* show the transport type icon on departure sensors ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
+* remove entities of directions a station no longer selects ([e382f73](https://github.com/g4bri3lDev/munich_public_transport/commit/e382f73c5f7005da777684622c61963bd2629ad6))
+* show the transport type icon on departure sensors ([b7e6669](https://github.com/g4bri3lDev/munich_public_transport/commit/b7e666954f24431f4fcb2a10ed82acb6e1311047))
+* give exception translations a message and drop manifest categories ([7b371d1](https://github.com/g4bri3lDev/munich_public_transport/commit/7b371d1ee7c2f6db8bc6dca679205220d1a0231e))
 
 
 ### Performance Improvements
 
-* poll departures every minute ([15bc15b](https://github.com/g4bri3lDev/munich_public_transport/commit/15bc15b092ddb9e5e792e32faa319bdaa8f4d245))
-* poll departures every minute ([2390db9](https://github.com/g4bri3lDev/munich_public_transport/commit/2390db977ed1622dba75f0597df39d130e9dec4f))
+* poll departures every minute ([9492878](https://github.com/g4bri3lDev/munich_public_transport/commit/9492878d997914c25bbf00353245bc61b6413753))
 
 ## [1.0.0](https://github.com/g4bri3lDev/munich_public_transport/compare/0.0.7...1.0.0) (2026-10-19)
 
