@@ -5,48 +5,41 @@
 [![GitHub issues](https://img.shields.io/github/issues/g4bri3lDev/munich_public_transport?style=for-the-badge)](https://github.com/g4bri3lDev/munich_public_transport/issues)
 [![GitHub stars](https://img.shields.io/github/stars/g4bri3lDev/munich_public_transport?style=for-the-badge)](https://github.com/g4bri3lDev/munich_public_transport/stargazers)
 
-Home Assistant custom integration for Munich public transport departures.
+Home Assistant custom integration for live departures and service messages of
+Munich public transport (MVG).
 
 This integration is not affiliated with, endorsed by, or sponsored by MVG, MVV,
 or Stadtwerke München.
 
 ## Overview
 
-Munich Public Transport lets Home Assistant monitor upcoming departures for
-selected Munich public transport stations. Each configured station becomes one
-Home Assistant device with sensors for the next departure, all selected
-departures, and each selected line/direction pairing.
+The integration is one **MVG** entry with a **station** for every stop you
+add. Each station is a device with a departure sensor for every line and
+direction you pick, a disruption sensor for every line, and a count of the
+station's service messages. A `munich_public_transport.get_departures` action
+returns the full list of upcoming departures, with destinations, delays and
+platforms, for dashboards and e-paper displays.
 
-The current integration is a rewrite built on the standalone
+It is built on the standalone
 [`munich-transport`](https://github.com/g4bri3lDev/munich-transport) Python
-package. It uses one shared departure coordinator per station so all sensors for
-one station are updated from the same API response.
+package.
 
-## Features
+## Use cases
 
-- UI-based setup and options flow.
-- Station search with support for stations that share the same name.
-- Multiple configured stations.
-- Line and direction selection grouped by transport type.
-- Stable line/direction entities based on MVG schedule catalogs.
-- Temporary termini support when MVG publishes construction schedules.
-- Night bus, bus, tram, U-Bahn, S-Bahn, regional bus, and replacement service
-  schedule groups when available for a station.
-- One shared live departures request per station refresh.
-- One shared MVG service messages request for all configured stations.
-- Retry handling for temporary MVG API errors such as `429`, `502`, `503`, and
-  `504`.
-- Legacy config-entry migration from the old integration schema.
+- See when the next U-Bahn, tram or bus leaves on a dashboard, as "in 4 min".
+- Draw a departure board on an e-paper display at the front door.
+- Get notified when a line you use has a disruption.
+- Start automations a few minutes before the train you want to catch.
 
 ## Installation
 
-Requires Home Assistant `2026.7.0` or newer.
+Requires Home Assistant `2026.10.0` or newer.
 
 ### HACS
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=g4bri3lDev&repository=munich_public_transport&category=integration)
 
-### Manual Installation
+### Manual installation
 
 1. Download the latest release from
    [GitHub releases](https://github.com/g4bri3lDev/munich_public_transport/releases).
@@ -56,121 +49,188 @@ Requires Home Assistant `2026.7.0` or newer.
 
 ## Configuration
 
-1. In Home Assistant, go to **Settings** > **Devices & services**.
-2. Click **Add integration**.
-3. Search for **Munich Public Transport**.
-4. Enter a station search term.
-5. Select the station from the search results.
-6. Select the line and direction pairings to expose as sensors.
+1. Go to **Settings** > **Devices & services** and click **Add integration**.
+2. Search for **Munich Public Transport**.
+3. Enter a station name, pick the station from the results, and select the
+   lines and directions to create sensors for.
 
-The options flow can be used later to change the selected line/direction
-pairings for a station.
+This creates the MVG entry with its first station. To add more, open the MVG
+entry and click **Add station**. To change which lines and directions a
+station has, open the station's **⋮** menu and click **Reconfigure**.
+
+### Configuration parameters
+
+| Step | Parameter | Description |
+|---|---|---|
+| Search | Station search | Part of a station name, such as `Münchner Freiheit`. |
+| Select station | Station | The stop, among stations that share a name. |
+| Lines and directions | per transport type | The line/direction pairings to create sensors for, such as `U6 → Klinikum Großhadern`. |
 
 ## Entities
 
-Each configured station creates:
+Every station is a device with:
 
-- **Next Departure**: minutes until the next selected departure.
-- **All Departures**: minutes until the next selected departure, with upcoming
-  departures in the `departures` attribute and their count in
-  `total_departures`.
-- **Messages**: number of relevant MVG service messages.
-- **Line/direction sensors**: one sensor for each selected pairing.
+| Entity | Description |
+|---|---|
+| Disruptions | Number of active service messages about the station or its lines. |
 
-Line/direction sensors use the normal catalog terminus for stable entity IDs,
-while the visible entity name follows the current live terminus. For example, a
-U-Bahn direction may keep a stable entity ID for `Fürstenried West` while the
-display name temporarily shows `Sendlinger Tor` during construction.
+for every selected line, for example `U6`:
 
-## Attributes
+| Entity | Description |
+|---|---|
+| `U6 disruption` | On while a service message names the line at this station. |
 
-Departure attributes use the legacy names where practical so existing
-automations keep working:
+and for every selected line and direction, for example `U6 → Klinikum Großhadern`:
 
-- `line`
-- `destination`
-- `realtime_departure`
-- `planned_departure`
-- `delay`
-- `is_late`
-- `minutes_until_departure`
-- `type`
-- `occupancy`
-- `cancelled`
-- `network`
-- `platform`
-- `platform_changed`
-- `realtime`
-- `direction_key`
+| Entity | Description | Enabled by default |
+|---|---|---|
+| `U6 → Klinikum Großhadern` | Timestamp of the next departure. | Yes |
+| … following departure | Timestamp of the departure after next. | No |
 
-Line/direction sensors also expose selection metadata:
+Entity names and IDs use the regular terminus from MVG's schedule catalog, so
+they stay the same when trains turn short during construction. Cancelled
+departures are skipped. Timestamps show as relative times such as "in 4 min"
+in the dashboard. The live destination, delay, platform and the full list of
+departures come from the `get_departures` action.
 
-- `normal_terminus`
-- `direction_variants`
-- `schedule_kind`
-- `departures`
+## Actions
 
-The **Messages** sensor exposes a `messages` attribute. Each message includes:
+### `munich_public_transport.get_departures`
 
-- `title`
-- `description`
-- `lines`
-- `type`
-- `validity`
+Returns the upcoming departures and relevant service messages of a station.
+It answers from the data the integration already fetched, so calling it adds
+no requests to MVG.
 
-## Screenshots
+| Field | Description |
+|---|---|
+| `device_id` | The station device. |
 
-### Selecting a station from the search results
+Every departure of the station's selected directions is included, cancelled
+ones too, up to the roughly 100 departures MVG reports. Each has `line`,
+`transport_type`, `network`, `destination`, `direction` (the selected
+direction id, such as `SUBWAY:U6:H`), `direction_key`, `planned_departure`,
+`realtime_departure`, `minutes_until_departure`, `delay`, `cancelled`,
+`realtime`, `platform`, `platform_changed` and `occupancy`. Messages have
+`title`, `description`, `type`, `lines`, `valid_from` and `valid_to`.
 
-![Selecting a station from the search results](screenshots/select_station.png)
+## Examples
 
-### All added stations
+### Template sensor with the next three departures
 
-![All added stations](screenshots/entries.png)
+```yaml
+template:
+  - triggers:
+      - trigger: time_pattern
+        minutes: /1
+    actions:
+      - action: munich_public_transport.get_departures
+        data:
+          device_id: YOUR_STATION_DEVICE_ID
+        response_variable: board
+    sensor:
+      - name: Next departures
+        state: >
+          {{ board.departures | rejectattr('cancelled') | map(attribute='minutes_until_departure')
+             | list | first(default='unknown') }}
+        attributes:
+          departures: >
+            {{ (board.departures | rejectattr('cancelled') | list)[:3] }}
+```
 
-### Device overview
+### Remind me to leave for the train
 
-![Device Overview](screenshots/device_overview.png)
+The departure sensors are timestamps, so a template trigger can fire a few
+minutes before the next train:
 
-### All departures
+```yaml
+automation:
+  - triggers:
+      - trigger: template
+        value_template: >
+          {% set departure = states('sensor.munchner_freiheit_u6_klinikum_grosshadern')
+             | as_datetime(None) %}
+          {{ departure is not none and now() >= departure - timedelta(minutes=6) }}
+    actions:
+      - action: notify.mobile_app_phone
+        data:
+          message: Leave now for the U6 to Klinikum Großhadern.
+```
 
-![All Departures](screenshots/all_departures.png)
+### Notify about a disruption on your line
 
-### A specific line and direction
+```yaml
+automation:
+  - triggers:
+      - trigger: state
+        entity_id: binary_sensor.munchner_freiheit_u6_disruption
+        to: "on"
+    actions:
+      - action: notify.mobile_app_phone
+        data:
+          message: The U6 has a disruption at Münchner Freiheit.
+```
 
-![A specific line and direction](screenshots/line.png)
+## Data updates
 
-### Messages for a station
+Each station polls MVG's live departures every minute, and one request
+every 30 minutes fetches the service messages for all stations. When MVG
+answers with HTTP 429 or a 5xx status, the integration waits for the time MVG
+asks for, up to 15 minutes, before trying again. Entities become unavailable
+while MVG can't be reached and recover on their own.
 
-![Messages for a station](screenshots/messages.png)
+## Known limitations
+
+- MVG's live departure API returns about 100 departures per station. At busy
+  stations such as Sendlinger Tor that covers only the next 40 minutes.
+- S-Bahn lines are not in MVG's schedule catalog for most stations, so they
+  can't be selected there.
+- Stations without a schedule catalog get their selectable directions from the
+  departures that are live while you set them up.
+- The data comes from MVG's unofficial web API, which can change without
+  notice.
+
+## Upgrading from earlier versions
+
+Stations from 1.x and from releases before the rewrite are migrated
+automatically on the first start:
+
+- All stations become subentries of one MVG entry. Device IDs are kept, and
+  entities keep their entity IDs where there is a direct successor: the line
+  sensors become the departure sensors and `messages` becomes `disruptions`.
+- **States are now timestamps** instead of minutes, and sensors no longer
+  carry departure data as attributes: the `departures` lists, details such as
+  `destination`, `delay` and `platform`, and the `messages` list all come
+  from the `get_departures` action now. The "All departures" and "Next
+  departure" sensors are removed.
+- Disruptions are one binary sensor per line, next to the station's
+  "Disruptions" count.
+- Legacy directions are matched against MVG's schedule catalog, including
+  small spelling differences. Directions that no longer exist are removed and
+  logged.
+- A disabled station stays disabled: its device is disabled instead of the
+  whole MVG entry.
+- If MVG can't be reached during the upgrade, Home Assistant retries the
+  migration of that station on its own.
 
 ## Troubleshooting
 
-- If setup cannot find a station, try a shorter or more specific station name.
-- If a station has no selectable line/direction entries, MVG may not publish a
-  schedule catalog for that station or product group.
-- Temporary MVG API failures are handled by the station coordinator. During an
-  outage, entities may become temporarily unavailable instead of logging one
-  error per sensor.
-- MVG service messages are fetched by one shared coordinator and then filtered
-  per station by affected station or selected lines.
-- If a migrated station does not select the expected directions, open the
-  integration options and reselect the line/direction pairings.
+- **A station can't be found:** try a shorter or more specific name.
+- **No lines or directions to select:** MVG may not publish a schedule catalog
+  for that station or transport type.
+- **Entities are unavailable:** MVG is unreachable or rate limiting. Check the
+  log for `munich_public_transport`; the entities recover on their own.
+- **Entity names say "unknown":** the schedule catalog was unreachable when the
+  integration started. They update on the next reload.
+- **Something else:** download the diagnostics from the MVG entry's **⋮** menu
+  and attach them to an
+  [issue](https://github.com/g4bri3lDev/munich_public_transport/issues).
 
-## Migrating from the old integration
+## Removal
 
-Stations configured with releases before the rewrite are migrated
-automatically on the first start:
-
-- Each legacy line/direction is matched against MVG's schedule catalog. Small
-  spelling differences such as `Tierpark (Alemannenstr)` and
-  `Tierpark (Alemannenstr.)` still match.
-- Existing entity IDs are kept, so dashboards and automations keep working.
-- Sensors for legacy directions that no catalog direction covers are removed,
-  and the unmatched names are logged as a warning.
-- The old integration filtered lines and directions independently, so a
-  direction shared by several selected lines selects it for each of them.
-- Disabled stations are migrated when they are enabled again.
+1. Go to **Settings** > **Devices & services** > **Munich Public Transport**.
+2. To remove one station, open its **⋮** menu and click **Delete**. To remove
+   everything, open the MVG entry's **⋮** menu and click **Delete**.
+3. If you installed through HACS, remove the repository there as well.
 
 ## Development
 
@@ -183,9 +243,10 @@ scripts/setup             # create the environment
 scripts/test              # run against the latest pinned Home Assistant
 scripts/test --min-ha     # run against the minimum supported version
 scripts/lint              # ruff fix and format
+uv run mypy               # strict type check
 ```
 
-CI runs both Home Assistant versions and ruff on every pull request.
+CI runs both Home Assistant versions, ruff and mypy on every pull request.
 
 ## License
 

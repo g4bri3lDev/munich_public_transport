@@ -1,0 +1,46 @@
+{
+  "entity": {
+    "sensor": {
+      "disruptions": {
+        "default": "mdi:message-alert"
+      },
+      "departure": {
+        "default": "mdi:train-car"
+      },
+      "following_departure": {
+        "default": "mdi:train-car"
+      },
+      "departure_subway": {
+        "default": "mdi:subway"
+      },
+      "departure_tram": {
+        "default": "mdi:tram"
+      },
+      "departure_bus": {
+        "default": "mdi:bus"
+      },
+      "departure_night_bus": {
+        "default": "mdi:bus-clock"
+      },
+      "departure_train": {
+        "default": "mdi:train"
+      },
+      "departure_replacement_service": {
+        "default": "mdi:bus-alert"
+      }
+    },
+    "binary_sensor": {
+      "disruption": {
+        "default": "mdi:alert-circle-check-outline",
+        "state": {
+          "on": "mdi:alert-circle"
+        }
+      }
+    }
+  },
+  "services": {
+    "get_departures": {
+      "service": "mdi:timetable"
+    }
+  }
+}

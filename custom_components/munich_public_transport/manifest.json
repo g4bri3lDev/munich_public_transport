@@ -13,7 +13,8 @@
     "munich_transport"
   ],
   "requirements": [
-    "munich-transport==0.1.1"
+    "munich-transport==0.2.0"
   ],
+  "single_config_entry": true,
   "version": "1.0.0"
 }

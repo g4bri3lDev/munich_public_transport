@@ -17,9 +17,27 @@
       },
       "select_directions": {
         "title": "Linien und Richtungen auswählen",
-        "description": "Wähle die Linien- und Richtungspaare aus, die Home Assistant als Sensoren anlegen soll.",
+        "description": "Wähle die Kombinationen aus Linie und Richtung, für die Home Assistant Sensoren anlegen soll.",
         "data": {},
         "sections": {
+          "subway": {
+            "name": "U-Bahn",
+            "data": {
+              "direction_option_ids_subway": "Linien und Richtungen"
+            }
+          },
+          "s_bahn": {
+            "name": "S-Bahn",
+            "data": {
+              "direction_option_ids_s_bahn": "Linien und Richtungen"
+            }
+          },
+          "tram": {
+            "name": "Tram",
+            "data": {
+              "direction_option_ids_tram": "Linien und Richtungen"
+            }
+          },
           "bus": {
             "name": "Bus",
             "data": {
@@ -38,28 +56,22 @@
               "direction_option_ids_regional_bus": "Linien und Richtungen"
             }
           },
+          "train": {
+            "name": "Zug",
+            "data": {
+              "direction_option_ids_train": "Linien und Richtungen"
+            }
+          },
           "replacement_service": {
             "name": "Ersatzverkehr",
             "data": {
               "direction_option_ids_replacement_service": "Linien und Richtungen"
             }
           },
-          "s_bahn": {
-            "name": "S-Bahn",
+          "other": {
+            "name": "Sonstige",
             "data": {
-              "direction_option_ids_s_bahn": "Linien und Richtungen"
-            }
-          },
-          "subway": {
-            "name": "U-Bahn",
-            "data": {
-              "direction_option_ids_subway": "Linien und Richtungen"
-            }
-          },
-          "tram": {
-            "name": "Tram",
-            "data": {
-              "direction_option_ids_tram": "Linien und Richtungen"
+              "direction_option_ids_other": "Linien und Richtungen"
             }
           }
         }
@@ -67,67 +79,244 @@
     },
     "error": {
       "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden.",
-      "invalid_station": "Die ausgewählte Haltestelle enthält nicht die erwarteten Metadaten.",
-      "no_direction_options": "Für diese Haltestelle wurden keine auswählbaren Linien- und Richtungspaare gefunden.",
+      "invalid_station": "Die ausgewählte Haltestelle enthielt nicht die erwarteten Daten.",
+      "no_direction_options": "Für diese Haltestelle wurden keine auswählbaren Linien und Richtungen gefunden.",
       "no_stations_found": "Es wurden keine passenden Haltestellen gefunden."
-    },
-    "abort": {
-      "already_configured": "Diese Haltestelle ist bereits konfiguriert."
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Linien und Richtungen aktualisieren",
-        "data": {},
-        "sections": {
-          "bus": {
-            "name": "Bus",
-            "data": {
-              "direction_option_ids_bus": "Linien und Richtungen"
+  "config_subentries": {
+    "station": {
+      "initiate_flow": {
+        "user": "Haltestelle hinzufügen"
+      },
+      "entry_type": "Haltestelle",
+      "step": {
+        "user": {
+          "title": "Haltestelle hinzufügen",
+          "description": "Suche nach einer Haltestelle im Münchner Nahverkehr.",
+          "data": {
+            "query": "Haltestellensuche"
+          }
+        },
+        "select_station": {
+          "title": "Haltestelle auswählen",
+          "data": {
+            "selected_station": "Haltestelle"
+          }
+        },
+        "select_directions": {
+          "title": "Linien und Richtungen auswählen",
+          "description": "Wähle die Kombinationen aus Linie und Richtung, für die Home Assistant Sensoren anlegen soll.",
+          "data": {},
+          "sections": {
+            "subway": {
+              "name": "U-Bahn",
+              "data": {
+                "direction_option_ids_subway": "Linien und Richtungen"
+              }
+            },
+            "s_bahn": {
+              "name": "S-Bahn",
+              "data": {
+                "direction_option_ids_s_bahn": "Linien und Richtungen"
+              }
+            },
+            "tram": {
+              "name": "Tram",
+              "data": {
+                "direction_option_ids_tram": "Linien und Richtungen"
+              }
+            },
+            "bus": {
+              "name": "Bus",
+              "data": {
+                "direction_option_ids_bus": "Linien und Richtungen"
+              }
+            },
+            "night_line": {
+              "name": "Nachtbus",
+              "data": {
+                "direction_option_ids_night_line": "Linien und Richtungen"
+              }
+            },
+            "regional_bus": {
+              "name": "Regionalbus",
+              "data": {
+                "direction_option_ids_regional_bus": "Linien und Richtungen"
+              }
+            },
+            "train": {
+              "name": "Zug",
+              "data": {
+                "direction_option_ids_train": "Linien und Richtungen"
+              }
+            },
+            "replacement_service": {
+              "name": "Ersatzverkehr",
+              "data": {
+                "direction_option_ids_replacement_service": "Linien und Richtungen"
+              }
+            },
+            "other": {
+              "name": "Sonstige",
+              "data": {
+                "direction_option_ids_other": "Linien und Richtungen"
+              }
             }
-          },
-          "night_line": {
-            "name": "Nachtbus",
-            "data": {
-              "direction_option_ids_night_line": "Linien und Richtungen"
-            }
-          },
-          "regional_bus": {
-            "name": "Regionalbus",
-            "data": {
-              "direction_option_ids_regional_bus": "Linien und Richtungen"
-            }
-          },
-          "replacement_service": {
-            "name": "Ersatzverkehr",
-            "data": {
-              "direction_option_ids_replacement_service": "Linien und Richtungen"
-            }
-          },
-          "s_bahn": {
-            "name": "S-Bahn",
-            "data": {
-              "direction_option_ids_s_bahn": "Linien und Richtungen"
-            }
-          },
-          "subway": {
-            "name": "U-Bahn",
-            "data": {
-              "direction_option_ids_subway": "Linien und Richtungen"
-            }
-          },
-          "tram": {
-            "name": "Tram",
-            "data": {
-              "direction_option_ids_tram": "Linien und Richtungen"
+          }
+        },
+        "reconfigure": {
+          "title": "Linien und Richtungen ändern",
+          "description": "Wähle die Kombinationen aus Linie und Richtung für {station}.",
+          "data": {},
+          "sections": {
+            "subway": {
+              "name": "U-Bahn",
+              "data": {
+                "direction_option_ids_subway": "Linien und Richtungen"
+              }
+            },
+            "s_bahn": {
+              "name": "S-Bahn",
+              "data": {
+                "direction_option_ids_s_bahn": "Linien und Richtungen"
+              }
+            },
+            "tram": {
+              "name": "Tram",
+              "data": {
+                "direction_option_ids_tram": "Linien und Richtungen"
+              }
+            },
+            "bus": {
+              "name": "Bus",
+              "data": {
+                "direction_option_ids_bus": "Linien und Richtungen"
+              }
+            },
+            "night_line": {
+              "name": "Nachtbus",
+              "data": {
+                "direction_option_ids_night_line": "Linien und Richtungen"
+              }
+            },
+            "regional_bus": {
+              "name": "Regionalbus",
+              "data": {
+                "direction_option_ids_regional_bus": "Linien und Richtungen"
+              }
+            },
+            "train": {
+              "name": "Zug",
+              "data": {
+                "direction_option_ids_train": "Linien und Richtungen"
+              }
+            },
+            "replacement_service": {
+              "name": "Ersatzverkehr",
+              "data": {
+                "direction_option_ids_replacement_service": "Linien und Richtungen"
+              }
+            },
+            "other": {
+              "name": "Sonstige",
+              "data": {
+                "direction_option_ids_other": "Linien und Richtungen"
+              }
             }
           }
         }
+      },
+      "error": {
+        "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden.",
+        "invalid_station": "Die ausgewählte Haltestelle enthielt nicht die erwarteten Daten.",
+        "no_direction_options": "Für diese Haltestelle wurden keine auswählbaren Linien und Richtungen gefunden.",
+        "no_stations_found": "Es wurden keine passenden Haltestellen gefunden."
+      },
+      "abort": {
+        "already_configured": "Diese Haltestelle ist bereits konfiguriert.",
+        "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "disruptions": {
+        "name": "Störungen"
+      },
+      "departure": {
+        "name": "{direction}"
+      },
+      "following_departure": {
+        "name": "{direction} übernächste Abfahrt"
+      },
+      "departure_subway": {
+        "name": "{direction}"
+      },
+      "departure_tram": {
+        "name": "{direction}"
+      },
+      "departure_bus": {
+        "name": "{direction}"
+      },
+      "departure_night_bus": {
+        "name": "{direction}"
+      },
+      "departure_train": {
+        "name": "{direction}"
+      },
+      "departure_replacement_service": {
+        "name": "{direction}"
       }
     },
-    "abort": {
-      "cannot_connect": "Verbindung zu MVG konnte nicht hergestellt werden."
+    "binary_sensor": {
+      "disruption": {
+        "name": "{line} Störung"
+      }
+    }
+  },
+  "services": {
+    "get_departures": {
+      "name": "Abfahrten abrufen",
+      "description": "Liefert die nächsten Abfahrten und Störungsmeldungen einer Haltestelle aus den bereits abgerufenen Daten.",
+      "fields": {
+        "device_id": {
+          "name": "Haltestelle",
+          "description": "Das Haltestellen-Gerät, dessen Abfahrten abgerufen werden."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_device": {
+      "message": "Das ausgewählte Gerät ist keine Haltestelle von Munich Public Transport."
+    },
+    "station_not_loaded": {
+      "message": "Die ausgewählte Haltestelle ist nicht geladen."
+    },
+    "station_unavailable": {
+      "message": "Für {station} sind gerade keine Abfahrtsdaten verfügbar."
+    },
+    "temporarily_unavailable": {
+      "message": "MVG ist vorübergehend nicht erreichbar (HTTP {status})."
+    },
+    "api_error": {
+      "message": "MVG hat HTTP {status} zurückgegeben."
+    },
+    "cannot_connect": {
+      "message": "Verbindung zu MVG fehlgeschlagen: {error}"
+    },
+    "migration_cannot_connect": {
+      "message": "MVG ist für die Migration von {title} nicht erreichbar; neuer Versuch folgt."
+    },
+    "legacy_entry_without_station": {
+      "message": "{title} wurde mit einer alten Version eingerichtet und enthält keine Haltestelle; entferne den Eintrag und füge die Haltestelle neu hinzu."
+    }
+  },
+  "issues": {
+    "legacy_entry_without_station": {
+      "title": "{title} kann nicht migriert werden",
+      "description": "Der Eintrag {title} wurde mit einer alten Version von Munich Public Transport angelegt und enthält keine Haltestelle, daher kann er nicht migriert werden. Entferne den Eintrag und füge die Haltestelle neu hinzu."
     }
   }
 }

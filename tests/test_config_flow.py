@@ -1,131 +1,135 @@
-"""Test the Munich Public Transport config and options flows."""
+"""Test the Munich Public Transport config and subentry flows."""
 
-from dataclasses import replace
+from collections.abc import Awaitable, Callable
+from typing import Any
 from unittest.mock import MagicMock
 
-from homeassistant.config_entries import SOURCE_USER
+from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import entity_registry as er
 from munich_transport.exceptions import MunichTransportError, ParseError
-from munich_transport.models import Location
+from munich_transport.models import Location, Station, StationDirectionOption
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.munich_public_transport.const import (
     CONF_DIRECTION_OPTION_IDS,
     DOMAIN,
+    SUBENTRY_TYPE_STATION,
 )
 
-from . import ENTRY_DATA, STATION
+from . import STATION, STATION_DATA, SUBENTRY_ID
 
-LOCATION = Location(
-    name=STATION.name,
-    place=STATION.place,
-    latitude=STATION.latitude,
-    longitude=STATION.longitude,
-    kind="STATION",
-    global_id=STATION.global_id,
+BONNER_PLATZ = Station(
+    global_id="de:09162:410",
+    name="Bonner Platz",
+    place="München",
+    latitude=48.1665,
+    longitude=11.5786,
+    abbreviation="BP",
 )
-
 SUBWAY_SECTION = {"subway": {"direction_option_ids_subway": ["SUBWAY:U6:H"]}}
+
+type Configure = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
+
+
+def _location(station: Station) -> Location:
+    return Location(
+        name=station.name,
+        place=station.place,
+        latitude=station.latitude,
+        longitude=station.longitude,
+        kind="STATION",
+        global_id=station.global_id,
+    )
+
+
+@pytest.fixture
+def locations() -> list[Location]:
+    """Return the station search results; parametrize to override."""
+    return [_location(STATION)]
 
 
 @pytest.fixture(autouse=True)
-def mock_search(mock_client: MagicMock) -> MagicMock:
-    """Return Münchner Freiheit for every station search."""
-    mock_client.search_locations.return_value = [LOCATION]
-    return mock_client
+def mock_search(mock_client: MagicMock, locations: list[Location]) -> None:
+    """Answer station searches with the locations fixture."""
+    mock_client.search_locations.return_value = locations
 
 
-async def _start_flow(hass: HomeAssistant) -> str:
+@pytest.fixture
+async def user_flow(hass: HomeAssistant) -> str:
+    """Start the integration's config flow and return its id."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
-    assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "user"
     return result["flow_id"]
 
 
-async def _search(hass: HomeAssistant, flow_id: str) -> dict:
-    return await hass.config_entries.flow.async_configure(
-        flow_id, {"query": "  Münchner Freiheit  "}
+@pytest.fixture
+async def station_flow(hass: HomeAssistant, init_integration: MockConfigEntry) -> str:
+    """Start an "Add station" subentry flow and return its id."""
+    result = await hass.config_entries.subentries.async_init(
+        (init_integration.entry_id, SUBENTRY_TYPE_STATION),
+        context={"source": SOURCE_USER},
     )
+    assert result["step_id"] == "user"
+    return result["flow_id"]
 
 
-async def _select_station(hass: HomeAssistant, flow_id: str) -> dict:
-    return await hass.config_entries.flow.async_configure(
-        flow_id, {"selected_station": STATION.global_id}
-    )
-
-
-async def test_full_flow(hass: HomeAssistant, mock_client: MagicMock) -> None:
-    """Test searching, picking a station and choosing directions."""
-    flow_id = await _start_flow(hass)
-
-    result = await _search(hass, flow_id)
-    assert result["type"] is FlowResultType.FORM
+async def _search_and_select(
+    configure: Configure, flow_id: str, station: Station = STATION
+) -> dict[str, Any]:
+    result = await configure(flow_id, {"query": f"  {station.name}  "})
     assert result["step_id"] == "select_station"
+    return await configure(flow_id, {"selected_station": station.global_id})
+
+
+async def test_user_flow_creates_entry_with_first_station(
+    hass: HomeAssistant, mock_client: MagicMock, user_flow: str
+) -> None:
+    """Test adding the integration creates the MVG entry and its first station."""
+    configure = hass.config_entries.flow.async_configure
+
+    result = await _search_and_select(configure, user_flow)
+    assert result["step_id"] == "select_directions"
     mock_client.search_locations.assert_awaited_once_with("Münchner Freiheit")
 
-    result = await _select_station(hass, flow_id)
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "select_directions"
-    mock_client.station_direction_options_by_abbreviation.assert_awaited_once_with("MU")
+    result = await configure(user_flow, SUBWAY_SECTION)
+    await hass.async_block_till_done()
 
-    result = await hass.config_entries.flow.async_configure(flow_id, SUBWAY_SECTION)
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["title"] == "Münchner Freiheit"
-    assert result["data"] == ENTRY_DATA
-    assert result["options"] == {CONF_DIRECTION_OPTION_IDS: ["SUBWAY:U6:H"]}
-    assert result["result"].unique_id == STATION.global_id
+    assert result["title"] == "MVG"
+    assert result["data"] == {}
+    [subentry] = result["result"].subentries.values()
+    assert subentry.subentry_type == SUBENTRY_TYPE_STATION
+    assert subentry.title == STATION.name
+    assert subentry.unique_id == STATION.global_id
+    assert dict(subentry.data) == {
+        **STATION_DATA,
+        CONF_DIRECTION_OPTION_IDS: ["SUBWAY:U6:H"],
+    }
 
 
-async def test_station_without_abbreviation(
-    hass: HomeAssistant, mock_client: MagicMock
+async def test_user_flow_single_instance(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Test direction options come from live departures without a catalog."""
-    mock_client.station.return_value = replace(STATION, abbreviation=None)
-    flow_id = await _start_flow(hass)
-    await _search(hass, flow_id)
+    """Test a second MVG entry is not allowed."""
+    mock_config_entry.add_to_hass(hass)
 
-    result = await _select_station(hass, flow_id)
-
-    assert result["step_id"] == "select_directions"
-    mock_client.station_direction_options_by_abbreviation.assert_not_awaited()
-    mock_client.departures.assert_awaited_once_with(STATION.global_id)
-
-    result = await hass.config_entries.flow.async_configure(
-        flow_id, {"other": {"direction_option_ids_other": ["UBAHN:U6:R"]}}
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
     )
-    assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["options"] == {CONF_DIRECTION_OPTION_IDS: ["UBAHN:U6:R"]}
 
-
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Departure-derived options use the transport type (UBAHN) as schedule "
-        "kind, which _SECTION_LABELS only knows as SUBWAY, so they land in an "
-        "untranslated 'other' section"
-    ),
-)
-async def test_station_without_abbreviation_uses_subway_section(
-    hass: HomeAssistant, mock_client: MagicMock
-) -> None:
-    """Test departure-derived U-Bahn options are grouped like catalog ones."""
-    mock_client.station.return_value = replace(STATION, abbreviation=None)
-    flow_id = await _start_flow(hass)
-    await _search(hass, flow_id)
-
-    result = await _select_station(hass, flow_id)
-
-    assert {str(key) for key in result["data_schema"].schema} == {"subway"}
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "single_instance_allowed"
 
 
 @pytest.mark.parametrize(
-    ("side_effect", "return_value", "error"),
+    ("side_effect", "locations", "error"),
     [
-        (MunichTransportError("boom"), None, "cannot_connect"),
+        (MunichTransportError("boom"), [], "cannot_connect"),
         (None, [], "no_stations_found"),
         (
             None,
@@ -145,24 +149,20 @@ async def test_station_without_abbreviation_uses_subway_section(
 async def test_search_errors_recover(
     hass: HomeAssistant,
     mock_client: MagicMock,
+    user_flow: str,
     side_effect: Exception | None,
-    return_value: list[Location] | None,
     error: str,
 ) -> None:
     """Test search errors are shown and the flow recovers on retry."""
+    configure = hass.config_entries.flow.async_configure
     mock_client.search_locations.side_effect = side_effect
-    if return_value is not None:
-        mock_client.search_locations.return_value = return_value
-    flow_id = await _start_flow(hass)
 
-    result = await _search(hass, flow_id)
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "user"
+    result = await configure(user_flow, {"query": "x"})
     assert result["errors"] == {"base": error}
 
     mock_client.search_locations.side_effect = None
-    mock_client.search_locations.return_value = [LOCATION]
-    result = await _search(hass, flow_id)
+    mock_client.search_locations.return_value = [_location(STATION)]
+    result = await configure(user_flow, {"query": "x"})
     assert result["step_id"] == "select_station"
 
 
@@ -172,107 +172,177 @@ async def test_search_errors_recover(
         ("station", ParseError("bad"), None, "invalid_station"),
         ("station", MunichTransportError("boom"), None, "cannot_connect"),
         (
-            "station_direction_options_by_abbreviation",
+            "direction_options_for_station",
             MunichTransportError("boom"),
             None,
             "cannot_connect",
         ),
-        ("station_direction_options_by_abbreviation", None, [], "no_direction_options"),
+        ("direction_options_for_station", None, [], "no_direction_options"),
     ],
 )
 async def test_select_station_errors_recover(
     hass: HomeAssistant,
     mock_client: MagicMock,
+    user_flow: str,
     attribute: str,
     side_effect: Exception | None,
     return_value: list | None,
     error: str,
 ) -> None:
     """Test station lookup errors are shown and the flow recovers on retry."""
+    configure = hass.config_entries.flow.async_configure
     mock = getattr(mock_client, attribute)
     original = mock.return_value
     mock.side_effect = side_effect
     if return_value is not None:
         mock.return_value = return_value
-    flow_id = await _start_flow(hass)
-    await _search(hass, flow_id)
 
-    result = await _select_station(hass, flow_id)
-    assert result["type"] is FlowResultType.FORM
+    result = await _search_and_select(configure, user_flow)
     assert result["step_id"] == "select_station"
     assert result["errors"] == {"base": error}
 
     mock.side_effect = None
     mock.return_value = original
-    result = await _select_station(hass, flow_id)
+    result = await configure(user_flow, {"selected_station": STATION.global_id})
     assert result["step_id"] == "select_directions"
-    result = await hass.config_entries.flow.async_configure(flow_id, SUBWAY_SECTION)
+
+
+@pytest.mark.parametrize(
+    "direction_options",
+    [
+        [
+            StationDirectionOption(
+                id="UBAHN:U6:H",
+                schedule_kind="UBAHN",
+                line_label="U6",
+                direction_key="H",
+                directions=("Klinikum Großhadern",),
+                raw_directions=("Klinikum Großhadern",),
+                schedule_codes=(),
+            )
+        ]
+    ],
+)
+async def test_departure_derived_options_use_transport_sections(
+    hass: HomeAssistant, user_flow: str
+) -> None:
+    """Test U-Bahn options built from live departures land in the U-Bahn section."""
+    result = await _search_and_select(
+        hass.config_entries.flow.async_configure, user_flow
+    )
+
+    assert [str(key) for key in result["data_schema"].schema] == ["subway"]
+
+
+@pytest.mark.parametrize("locations", [[_location(BONNER_PLATZ), _location(STATION)]])
+async def test_add_station(
+    hass: HomeAssistant,
+    mock_client: MagicMock,
+    init_integration: MockConfigEntry,
+    station_flow: str,
+) -> None:
+    """Test adding a second station as a subentry."""
+    configure = hass.config_entries.subentries.async_configure
+    mock_client.station.return_value = BONNER_PLATZ
+
+    await _search_and_select(configure, station_flow, BONNER_PLATZ)
+    result = await configure(station_flow, SUBWAY_SECTION)
+    await hass.async_block_till_done()
+
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["result"].unique_id == STATION.global_id
+    assert {
+        subentry.unique_id for subentry in init_integration.subentries.values()
+    } == {
+        STATION.global_id,
+        BONNER_PLATZ.global_id,
+    }
+    # The entry reloads, so the new station is set up right away.
+    assert len(init_integration.runtime_data.stations) == 2
 
 
-async def test_already_configured(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry
+async def test_add_station_already_configured(
+    hass: HomeAssistant, mock_client: MagicMock, station_flow: str
 ) -> None:
     """Test a configured station aborts before any lookups."""
-    mock_config_entry.add_to_hass(hass)
-    flow_id = await _start_flow(hass)
-    await _search(hass, flow_id)
+    mock_client.station.reset_mock()
 
-    result = await _select_station(hass, flow_id)
+    result = await _search_and_select(
+        hass.config_entries.subentries.async_configure, station_flow
+    )
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+    mock_client.station.assert_not_awaited()
 
 
-async def test_options_flow(
-    hass: HomeAssistant,
-    mock_client: MagicMock,
-    mock_config_entry: MockConfigEntry,
+async def _start_reconfigure(hass: HomeAssistant, entry: MockConfigEntry) -> dict:
+    return await hass.config_entries.subentries.async_init(
+        (entry.entry_id, SUBENTRY_TYPE_STATION),
+        context={"source": SOURCE_RECONFIGURE, "subentry_id": SUBENTRY_ID},
+    )
+
+
+async def test_reconfigure_station(
+    hass: HomeAssistant, init_integration: MockConfigEntry
 ) -> None:
-    """Test the options flow preselects and updates direction choices."""
-    mock_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "init"
+    """Test changing a station's directions preselects the current ones."""
+    result = await _start_reconfigure(hass, init_integration)
+    assert result["step_id"] == "reconfigure"
     defaults = {
         str(key): key.default()
         for key in result["data_schema"].schema["subway"].schema.schema
     }
     assert defaults == {"direction_option_ids_subway": ["SUBWAY:U6:H", "SUBWAY:U6:R"]}
 
-    result = await hass.config_entries.options.async_configure(
+    result = await hass.config_entries.subentries.async_configure(
         result["flow_id"], SUBWAY_SECTION
     )
     await hass.async_block_till_done()
 
-    assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert mock_config_entry.options == {CONF_DIRECTION_OPTION_IDS: ["SUBWAY:U6:H"]}
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert init_integration.subentries[SUBENTRY_ID].data[CONF_DIRECTION_OPTION_IDS] == [
+        "SUBWAY:U6:H"
+    ]
+    [station] = init_integration.runtime_data.stations.values()
+    assert [direction.id for direction in station.directions] == ["SUBWAY:U6:H"]
 
 
-async def test_options_flow_cannot_connect(
-    hass: HomeAssistant,
-    mock_client: MagicMock,
-    mock_config_entry: MockConfigEntry,
+async def test_reconfigure_station_cannot_connect(
+    hass: HomeAssistant, mock_client: MagicMock, init_integration: MockConfigEntry
 ) -> None:
-    """Test a failed direction lookup aborts and keeps the selection.
+    """Test a failed lookup aborts instead of offering an empty form.
 
-    Showing the form without options would let a submit save an empty
-    selection and remove every line sensor.
+    Submitting an empty form would save an empty selection and remove every
+    direction of the station.
     """
-    mock_config_entry.add_to_hass(hass)
-    mock_client.station_direction_options_by_abbreviation.side_effect = (
-        MunichTransportError("boom")
-    )
+    mock_client.direction_options_for_station.side_effect = MunichTransportError("boom")
 
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    result = await _start_reconfigure(hass, init_integration)
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "cannot_connect"
-    assert mock_config_entry.options[CONF_DIRECTION_OPTION_IDS] == [
-        "SUBWAY:U6:H",
-        "SUBWAY:U6:R",
-    ]
+    assert init_integration.subentries[SUBENTRY_ID].data == STATION_DATA
+
+
+async def test_reconfigure_removes_deselected_entities(
+    hass: HomeAssistant,
+    entity_registry: er.EntityRegistry,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test dropping a direction removes its entities instead of orphaning them."""
+    result = await _start_reconfigure(hass, init_integration)
+    await hass.config_entries.subentries.async_configure(
+        result["flow_id"], SUBWAY_SECTION
+    )
+    await hass.async_block_till_done()
+
+    unique_ids = {
+        entity.unique_id
+        for entity in er.async_entries_for_config_entry(
+            entity_registry, init_integration.entry_id
+        )
+    }
+    assert not {uid for uid in unique_ids if "SUBWAY:U6:R" in uid}
+    # One per station, two for the remaining direction, one for U6.
+    assert len(unique_ids) == 1 + 2 + 1

@@ -1,0 +1,7 @@
+get_departures:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: munich_public_transport

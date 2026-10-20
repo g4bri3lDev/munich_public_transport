@@ -10,7 +10,7 @@ requires-python = ">=3.14.2"
 # voluptuous) is supplied by Home Assistant itself, which the test dependency
 # groups pin transitively.
 dependencies = [
-    "munich-transport==0.1.1",
+    "munich-transport==0.2.0",
 ]
 
 [dependency-groups]
@@ -20,14 +20,14 @@ dependencies = [
 # picking the HA version being tested against.
 #
 #   0.13.373 -> homeassistant 2026.10.2  (latest)
-#   0.13.344 -> homeassistant 2026.7.0   (the hacs.json floor)
+#   0.13.371 -> homeassistant 2026.10.0  (the hacs.json floor)
 dev = [
     "pytest-homeassistant-custom-component==0.13.373",
     "ruff==0.15.17",
     "mypy==1.18.2",
 ]
 min-ha = [
-    "pytest-homeassistant-custom-component==0.13.344",
+    "pytest-homeassistant-custom-component==0.13.371",
     "ruff==0.15.17",
     "mypy==1.18.2",
 ]
@@ -52,6 +52,13 @@ exclude_also = [
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["custom_components"]
+# Home Assistant's own modules are typed; the library ships py.typed.
+warn_unreachable = true
 
 [tool.ruff]
 target-version = "py314"

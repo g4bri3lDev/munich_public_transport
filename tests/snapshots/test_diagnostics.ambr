@@ -1,0 +1,47 @@
+# serializer version: 1
+# name: test_diagnostics
+  dict({
+    'disabled_stations': list([
+    ]),
+    'messages': dict({
+      'count': 0,
+      'last_update_success': True,
+    }),
+    'stations': list([
+      dict({
+        'departures': 2,
+        'directions': list([
+          dict({
+            'direction_key': 'H',
+            'directions': list([
+              'Klinikum Großhadern',
+              'Goetheplatz / Klinikum Großhadern',
+            ]),
+            'id': 'SUBWAY:U6:H',
+            'line': 'U6',
+          }),
+          dict({
+            'direction_key': 'R',
+            'directions': list([
+              'Garching, Forschungszentrum',
+              'Implerstraße / Garching-Forschungszentrum',
+            ]),
+            'id': 'SUBWAY:U6:R',
+            'line': 'U6',
+          }),
+        ]),
+        'last_update_success': True,
+        'subentry': dict({
+          'direction_option_ids': list([
+            'SUBWAY:U6:H',
+            'SUBWAY:U6:R',
+          ]),
+          'name': 'Münchner Freiheit',
+          'station_abbreviation': 'MU',
+          'station_global_id': 'de:09162:500',
+          'station_place': 'München',
+        }),
+      }),
+    ]),
+  })
+# ---
