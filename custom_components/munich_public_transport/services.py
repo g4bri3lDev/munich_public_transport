@@ -117,6 +117,7 @@ def _departure_response(
         "line": departure.line.label,
         "transport_type": departure.line.transport_type,
         "network": departure.line.network,
+        "replacement_service": departure.line.replacement_service,
         "destination": departure.destination,
         "direction": None if direction is None else direction.id,
         "direction_key": departure.direction_key,

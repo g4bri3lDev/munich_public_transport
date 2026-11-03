@@ -25,6 +25,10 @@ from custom_components.munich_public_transport.const import (
 from . import NOW, U6, make_departure
 
 U3 = Line(label="U3", transport_type="UBAHN", network="swm")
+# Replacement buses carry the label of the line they replace.
+U6_REPLACEMENT = Line(
+    label="U6", transport_type="BUS", network="swm", replacement_service=True
+)
 
 
 async def _get_departures(hass: HomeAssistant, device_id: str) -> dict[str, Any]:
@@ -42,7 +46,11 @@ async def _get_departures(hass: HomeAssistant, device_id: str) -> dict[str, Any]
     [
         [
             make_departure(
-                8, destination="Garching, Forschungszentrum", direction_key="R", now=NOW
+                8,
+                line=U6_REPLACEMENT,
+                destination="Garching, Forschungszentrum",
+                direction_key="R",
+                now=NOW,
             ),
             replace(make_departure(3, delay=2, now=NOW), cancelled=True),
             make_departure(
@@ -89,6 +97,7 @@ async def test_get_departures(
                 "line": "U6",
                 "transport_type": "UBAHN",
                 "network": "swm",
+                "replacement_service": False,
                 "destination": "Klinikum Großhadern",
                 "direction": "SUBWAY:U6:H",
                 "direction_key": "H",
@@ -104,8 +113,9 @@ async def test_get_departures(
             },
             {
                 "line": "U6",
-                "transport_type": "UBAHN",
+                "transport_type": "BUS",
                 "network": "swm",
+                "replacement_service": True,
                 "destination": "Garching, Forschungszentrum",
                 "direction": "SUBWAY:U6:R",
                 "direction_key": "R",

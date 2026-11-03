@@ -65,8 +65,13 @@ class MunichTransportEntity[CoordinatorT: DataUpdateCoordinator[Any]](
 
 
 def direction_label(direction: StationDirectionOption) -> str:
-    """Return the stable "<line> → <terminus>" label for a direction."""
+    """Return the stable "<line> → <terminus>" label for a direction.
 
+    Options for every direction of a line are labeled with the line alone.
+    """
+
+    if direction.direction_key is None and not direction.directions:
+        return direction.line_label
     return f"{direction.line_label} → {direction.normal_terminus or 'unknown'}"
 
 

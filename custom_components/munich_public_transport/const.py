@@ -22,6 +22,9 @@ CONF_STATION_GLOBAL_ID = "station_global_id"
 CONF_STATION_ABBREVIATION = "station_abbreviation"
 CONF_STATION_PLACE = "station_place"
 CONF_DIRECTION_OPTION_IDS = "direction_option_ids"
+# The selected options themselves, so starting up needs no MVG requests to
+# name and match them.
+CONF_DIRECTION_OPTIONS = "direction_options"
 
 OLD_CONF_STATION_ID = "station_id"
 OLD_CONF_STATION_NAME = "station_name"

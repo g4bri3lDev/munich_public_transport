@@ -16,7 +16,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from munich_transport.exceptions import MunichTransportError
-from munich_transport.models import Disruption, Line
+from munich_transport.models import Disruption, Line, StationDirectionOption
 import pytest
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
@@ -30,7 +30,7 @@ from custom_components.munich_public_transport.const import (
     DEFAULT_SCAN_INTERVAL,
 )
 
-from . import NOW, STATION, U6, make_departure
+from . import ENTRY_DATA, LEGACY_STATION_DATA, NOW, STATION, U6, make_departure
 
 U3 = Line(label="U3", transport_type="UBAHN", network="swm")
 HOUR = timedelta(hours=1)
@@ -152,6 +152,7 @@ async def test_no_departures(
 
 
 @pytest.mark.usefixtures("catalog_unreachable")
+@pytest.mark.parametrize("station_data", [LEGACY_STATION_DATA])
 async def test_names_without_catalog(
     hass: HomeAssistant, init_integration: MockConfigEntry
 ) -> None:
@@ -159,6 +160,27 @@ async def test_names_without_catalog(
     state = hass.states.get("sensor.munchner_freiheit_u6_unknown")
     assert state is not None
     assert state.state == (NOW + timedelta(minutes=3)).isoformat()
+
+
+@pytest.mark.parametrize(
+    "station_data",
+    [
+        {
+            **ENTRY_DATA,
+            "direction_option_ids": ["SBAHN:S7:"],
+            "direction_options": [
+                StationDirectionOption.from_id("SBAHN:S7:").to_dict()
+            ],
+        }
+    ],
+)
+async def test_all_directions_named_after_line(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """Test a direction covering every direction of a line has the line's name."""
+    state = hass.states.get("sensor.munchner_freiheit_s7")
+    assert state is not None
+    assert state.attributes["friendly_name"] == "Münchner Freiheit S7"
 
 
 async def test_departures_unavailable_and_recover(

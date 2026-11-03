@@ -3,6 +3,7 @@
 from collections.abc import Generator
 from contextlib import ExitStack
 from datetime import datetime
+from typing import Any
 from unittest.mock import MagicMock, PropertyMock, patch
 
 from freezegun.api import FrozenDateTimeFactory
@@ -113,7 +114,13 @@ def mock_client(
 
 
 @pytest.fixture
-def mock_config_entry() -> MockConfigEntry:
+def station_data() -> dict[str, Any]:
+    """Return the station subentry's data; parametrize to override."""
+    return STATION_DATA
+
+
+@pytest.fixture
+def mock_config_entry(station_data: dict[str, Any]) -> MockConfigEntry:
     """Return an MVG entry with Münchner Freiheit and both U6 directions."""
     return MockConfigEntry(
         domain=DOMAIN,
@@ -122,7 +129,7 @@ def mock_config_entry() -> MockConfigEntry:
         data={},
         subentries_data=[
             ConfigSubentryData(
-                data=STATION_DATA,
+                data=station_data,
                 subentry_id=SUBENTRY_ID,
                 subentry_type=SUBENTRY_TYPE_STATION,
                 title=STATION.name,

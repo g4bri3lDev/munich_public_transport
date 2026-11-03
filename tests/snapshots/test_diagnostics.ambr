@@ -36,6 +36,48 @@
             'SUBWAY:U6:H',
             'SUBWAY:U6:R',
           ]),
+          'direction_options': list([
+            dict({
+              'direction_key': 'H',
+              'directions': list([
+                'Klinikum Großhadern',
+                'Goetheplatz / Klinikum Großhadern',
+              ]),
+              'excluded_destinations': list([
+              ]),
+              'id': 'SUBWAY:U6:H',
+              'line_label': 'U6',
+              'raw_directions': list([
+                'Klinikum Großhadern, gültig ab 14.12.2025',
+                'Goetheplatz / Klinikum Großhadern (gültig vom 05.10.-27.11.2026)',
+              ]),
+              'schedule_codes': list([
+                'H',
+                'I',
+              ]),
+              'schedule_kind': 'SUBWAY',
+            }),
+            dict({
+              'direction_key': 'R',
+              'directions': list([
+                'Garching, Forschungszentrum',
+                'Implerstraße / Garching-Forschungszentrum',
+              ]),
+              'excluded_destinations': list([
+              ]),
+              'id': 'SUBWAY:U6:R',
+              'line_label': 'U6',
+              'raw_directions': list([
+                'Garching, Forschungszentrum, gültig ab 14.12.2025',
+                'Implerstraße / Garching-Forschungszentrum (gültig vom 05.10.-27.11.2026)',
+              ]),
+              'schedule_codes': list([
+                'R',
+                'S',
+              ]),
+              'schedule_kind': 'SUBWAY',
+            }),
+          ]),
           'name': 'Münchner Freiheit',
           'station_abbreviation': 'MU',
           'station_global_id': 'de:09162:500',
