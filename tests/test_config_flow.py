@@ -15,11 +15,12 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.munich_public_transport.const import (
     CONF_DIRECTION_OPTION_IDS,
+    CONF_DIRECTION_OPTIONS,
     DOMAIN,
     SUBENTRY_TYPE_STATION,
 )
 
-from . import STATION, STATION_DATA, SUBENTRY_ID
+from . import DIRECTION_OPTIONS, STATION, STATION_DATA, SUBENTRY_ID
 
 BONNER_PLATZ = Station(
     global_id="de:09162:410",
@@ -109,6 +110,7 @@ async def test_user_flow_creates_entry_with_first_station(
     assert dict(subentry.data) == {
         **STATION_DATA,
         CONF_DIRECTION_OPTION_IDS: ["SUBWAY:U6:H"],
+        CONF_DIRECTION_OPTIONS: [DIRECTION_OPTIONS[0].to_dict()],
     }
 
 

@@ -6,7 +6,7 @@ from collections.abc import Mapping
 import logging
 from typing import Any
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigSubentry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, device_registry as dr
@@ -19,6 +19,7 @@ from munich_transport.transport import AiohttpTransport
 
 from .const import (
     CONF_DIRECTION_OPTION_IDS,
+    CONF_DIRECTION_OPTIONS,
     CONF_STATION_ABBREVIATION,
     CONF_STATION_GLOBAL_ID,
     CONF_STATION_PLACE,
@@ -96,7 +97,7 @@ async def async_setup_entry(
             global_id=global_id,
             name=subentry.data[CONF_NAME],
             coordinator=coordinator,
-            directions=await _load_directions(client, subentry.data),
+            directions=await _load_directions(hass, entry, subentry, client),
         )
 
     entry.runtime_data = MunichTransportData(
@@ -127,18 +128,28 @@ async def _async_update_listener(
 
 
 async def _load_directions(
+    hass: HomeAssistant,
+    entry: MunichTransportConfigEntry,
+    subentry: ConfigSubentry,
     client: MunichTransportClient,
-    data: Mapping[str, Any],
 ) -> tuple[StationDirectionOption, ...]:
-    """Resolve the station's selected direction ids against the catalog.
+    """Return the station's selected directions.
 
-    Without the catalog the ids are still enough to match departures; only
-    the terminus names in entity names are missing until the next reload.
+    Subentries store the selected options. Ones saved before that only have
+    ids, so their options are looked up once and stored. That runs before the
+    update listener is added, so storing them does not reload the entry.
+    Without MVG the ids are still enough to match departures; only the
+    terminus names in entity names are missing until the next start.
     """
 
+    data = subentry.data
     selected_ids = sorted(set(data.get(CONF_DIRECTION_OPTION_IDS, ())))
     if not selected_ids:
         return ()
+
+    stored = _stored_options(data)
+    if all(option_id in stored for option_id in selected_ids):
+        return tuple(stored[option_id] for option_id in selected_ids)
 
     try:
         options = await client.direction_options_for_station(
@@ -154,7 +165,7 @@ async def _load_directions(
     except MunichTransportError:
         options = []
 
-    options_by_id = {option.id: option for option in options}
+    options_by_id = {option.id: option for option in options} | stored
     directions: list[StationDirectionOption] = []
     for option_id in selected_ids:
         if option_id in options_by_id:
@@ -164,4 +175,30 @@ async def _load_directions(
             directions.append(StationDirectionOption.from_id(option_id))
         except ValueError:
             _LOGGER.warning("Ignoring unknown MVG direction %s", option_id)
+
+    if options:
+        hass.config_entries.async_update_subentry(
+            entry,
+            subentry,
+            data={
+                **data,
+                CONF_DIRECTION_OPTIONS: [
+                    direction.to_dict()
+                    for direction in directions
+                    if direction.id in options_by_id
+                ],
+            },
+        )
     return tuple(directions)
+
+
+def _stored_options(data: Mapping[str, Any]) -> dict[str, StationDirectionOption]:
+    options: dict[str, StationDirectionOption] = {}
+    for stored in data.get(CONF_DIRECTION_OPTIONS, ()):
+        try:
+            option = StationDirectionOption.from_dict(stored)
+        except ValueError:
+            _LOGGER.warning("Ignoring invalid stored MVG direction %s", stored)
+            continue
+        options[option.id] = option
+    return options

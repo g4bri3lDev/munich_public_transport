@@ -87,11 +87,24 @@ and for every selected line and direction, for example `U6 → Klinikum Großhad
 | `U6 → Klinikum Großhadern` | Timestamp of the next departure. | Yes |
 | … following departure | Timestamp of the departure after next. | No |
 
-Entity names and IDs use the regular terminus from MVG's schedule catalog, so
-they stay the same when trains turn short during construction. Cancelled
-departures are skipped. Timestamps show as relative times such as "in 4 min"
-in the dashboard. The live destination, delay, platform and the full list of
-departures come from the `get_departures` action.
+Entity names and IDs use the regular terminus from MVG's schedule catalog, or
+for lines outside it, such as the S-Bahn, the end station the line goes to in
+MVV's timetable. Trains that split further down the line are named after
+both halves, for example `S1 → Flughafen München / Freising`. Names stay the
+same when trains turn short during construction.
+
+Where split trains part, at Neufahrn for the S1 and at Dachau for the S2,
+each branch is a direction of its own, for example `S1 → Flughafen München`
+and `S1 → Freising`. A branch skips trains to the other branch; trains that
+end before the split, for example during construction, count for both.
+
+A line that is in neither, such as one MVG reports without any departure
+during setup, is offered once for all its directions and named after the line
+alone, for example `S7`.
+
+Cancelled departures are skipped. Timestamps show as relative times such as
+"in 4 min" in the dashboard. The live destination, delay, platform and the
+full list of departures come from the `get_departures` action.
 
 ## Actions
 
@@ -107,11 +120,18 @@ no requests to MVG.
 
 Every departure of the station's selected directions is included, cancelled
 ones too, up to the roughly 100 departures MVG reports. Each has `line`,
-`transport_type`, `network`, `destination`, `direction` (the selected
-direction id, such as `SUBWAY:U6:H`), `direction_key`, `planned_departure`,
-`realtime_departure`, `minutes_until_departure`, `delay`, `cancelled`,
-`realtime`, `platform`, `platform_changed` and `occupancy`. Messages have
+`transport_type`, `network`, `replacement_service`, `destination`,
+`direction` (the selected direction id, such as `SUBWAY:U6:H`),
+`direction_key`, `planned_departure`, `realtime_departure`,
+`minutes_until_departure`, `delay`, `cancelled`, `realtime`, `platform`,
+`platform_changed` and `occupancy`. Messages have
 `title`, `description`, `type`, `lines`, `valid_from` and `valid_to`.
+
+Replacement buses carry the label of the line they replace, so they count as
+that line's departures, also for the departure sensors. `replacement_service`
+is `true` for them and `transport_type` is `BUS`. MVG sometimes gives them the
+opposite direction of the trains, so a bus can show up in the wrong direction;
+filter them with `rejectattr('replacement_service')` where that matters.
 
 ## Examples
 
@@ -182,10 +202,11 @@ while MVG can't be reached and recover on their own.
 
 - MVG's live departure API returns about 100 departures per station. At busy
   stations such as Sendlinger Tor that covers only the next 40 minutes.
-- S-Bahn lines are not in MVG's schedule catalog for most stations, so they
-  can't be selected there.
-- Stations without a schedule catalog get their selectable directions from the
-  departures that are live while you set them up.
+- The directions of lines outside MVG's schedule catalog, such as the S-Bahn
+  and regional trains, come from MVV's timetable as of the installed release.
+  A line missing from it gets its directions from departures sampled across
+  the day while you set the station up, and a direction without a departure
+  in those samples can't be selected until you reconfigure the station.
 - The data comes from MVG's unofficial web API, which can change without
   notice.
 
