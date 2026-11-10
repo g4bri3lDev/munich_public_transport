@@ -16,6 +16,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.munich_public_transport.const import (
     CONF_DIRECTION_OPTION_IDS,
     CONF_DIRECTION_OPTIONS,
+    CONF_LOOK_AHEAD,
     DOMAIN,
     SUBENTRY_TYPE_STATION,
 )
@@ -111,6 +112,7 @@ async def test_user_flow_creates_entry_with_first_station(
         **STATION_DATA,
         CONF_DIRECTION_OPTION_IDS: ["SUBWAY:U6:H"],
         CONF_DIRECTION_OPTIONS: [DIRECTION_OPTIONS[0].to_dict()],
+        CONF_LOOK_AHEAD: 0,
     }
 
 
@@ -233,7 +235,10 @@ async def test_departure_derived_options_use_transport_sections(
         hass.config_entries.flow.async_configure, user_flow
     )
 
-    assert [str(key) for key in result["data_schema"].schema] == ["subway"]
+    assert [str(key) for key in result["data_schema"].schema] == [
+        "subway",
+        "look_ahead",
+    ]
 
 
 @pytest.mark.parametrize("locations", [[_location(BONNER_PLATZ), _location(STATION)]])
@@ -308,6 +313,34 @@ async def test_reconfigure_station(
     ]
     [station] = init_integration.runtime_data.stations.values()
     assert [direction.id for direction in station.directions] == ["SUBWAY:U6:H"]
+
+
+async def test_reconfigure_look_ahead(
+    hass: HomeAssistant, mock_client: MagicMock, init_integration: MockConfigEntry
+) -> None:
+    """Test the look-ahead is preselected, stored and used after the reload."""
+    result = await _start_reconfigure(hass, init_integration)
+    [look_ahead] = [
+        key for key in result["data_schema"].schema if str(key) == CONF_LOOK_AHEAD
+    ]
+    assert look_ahead.default() == 0
+
+    mock_client.departures.reset_mock()
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {**SUBWAY_SECTION, CONF_LOOK_AHEAD: 30.0}
+    )
+    await hass.async_block_till_done()
+
+    assert result["reason"] == "reconfigure_successful"
+    assert init_integration.subentries[SUBENTRY_ID].data[CONF_LOOK_AHEAD] == 30
+    # The fixture's last departure is 8 minutes out, so MVG is asked again.
+    assert mock_client.departures.await_args_list[-1].kwargs == {"offset_minutes": 8}
+
+    result = await _start_reconfigure(hass, init_integration)
+    [look_ahead] = [
+        key for key in result["data_schema"].schema if str(key) == CONF_LOOK_AHEAD
+    ]
+    assert look_ahead.default() == 30
 
 
 async def test_reconfigure_station_cannot_connect(

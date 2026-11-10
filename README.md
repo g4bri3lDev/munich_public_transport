@@ -65,6 +65,7 @@ station has, open the station's **⋮** menu and click **Reconfigure**.
 | Search | Station search | Part of a station name, such as `Münchner Freiheit`. |
 | Select station | Station | The stop, among stations that share a name. |
 | Lines and directions | per transport type | The line/direction pairings to create sensors for, such as `U6 → Klinikum Großhadern`. |
+| Lines and directions | Look-ahead | Minutes of departures to load beyond MVG's first response, up to 90. `0`, the default, keeps one request per update. See [Data updates](#data-updates). |
 
 ## Entities
 
@@ -119,7 +120,8 @@ no requests to MVG.
 | `device_id` | The station device. |
 
 Every departure of the station's selected directions is included, cancelled
-ones too, up to the roughly 100 departures MVG reports. Each has `line`,
+ones too, from the departures MVG reports: 30 for the whole station, plus
+later ones when the station has a look-ahead. Each has `line`,
 `transport_type`, `network`, `replacement_service`, `destination`,
 `direction` (the selected direction id, such as `SUBWAY:U6:H`),
 `direction_key`, `planned_departure`, `realtime_departure`,
@@ -198,10 +200,19 @@ answers with HTTP 429 or a 5xx status, the integration waits for the time MVG
 asks for, up to 15 minutes, before trying again. Entities become unavailable
 while MVG can't be reached and recover on their own.
 
+MVG answers at most 30 departures per request, for all lines of the station
+together. At busy stations that reaches only about 20 minutes ahead, too
+little to plan a transfer. A station's look-ahead asks MVG for later
+departures, starting where the previous answer ended, until the look-ahead is
+covered. That takes up to three more requests per update, so set it only on
+the stations that need it. Change it with **Reconfigure**. If one of these
+requests fails, the update fails as a whole, as when the first one does.
+
 ## Known limitations
 
-- MVG's live departure API returns about 100 departures per station. At busy
-  stations such as Sendlinger Tor that covers only the next 40 minutes.
+- MVG's live departure API returns 30 departures per request. At busy
+  stations such as Sendlinger Tor that covers only the next 20 minutes; a
+  look-ahead extends it.
 - The directions of lines outside MVG's schedule catalog, such as the S-Bahn
   and regional trains, come from MVV's timetable as of the installed release.
   A line missing from it gets its directions from departures sampled across
