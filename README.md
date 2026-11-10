@@ -65,7 +65,7 @@ station has, open the station's **⋮** menu and click **Reconfigure**.
 | Search | Station search | Part of a station name, such as `Münchner Freiheit`. |
 | Select station | Station | The stop, among stations that share a name. |
 | Lines and directions | per transport type | The line/direction pairings to create sensors for, such as `U6 → Klinikum Großhadern`. |
-| Lines and directions | Look-ahead | Minutes of departures to load beyond MVG's first response, up to 90. `0`, the default, keeps one request per update. See [Data updates](#data-updates). |
+| Lines and directions | Look-ahead | Minutes from now to load departures for, up to 90. `0`, the default, keeps one request per update. A value below what one request already reaches changes nothing. See [Data updates](#data-updates). |
 
 ## Entities
 
@@ -201,11 +201,12 @@ asks for, up to 15 minutes, before trying again. Entities become unavailable
 while MVG can't be reached and recover on their own.
 
 MVG answers at most 30 departures per request, for all lines of the station
-together. At busy stations that reaches only about 20 minutes ahead, too
-little to plan a transfer. A station's look-ahead asks MVG for later
-departures, starting where the previous answer ended, until the look-ahead is
-covered. That takes up to three more requests per update, so set it only on
-the stations that need it. Change it with **Reconfigure**. If one of these
+together, and it can include departures that already left. At busy stations
+that reaches only about 15 to 20 minutes ahead, too little to plan a
+transfer. A station's look-ahead asks MVG for later departures, starting
+where the previous answer is complete to, until the look-ahead is covered.
+That takes up to five more requests per update, so set it only on the
+stations that need it. Change it with **Reconfigure**. If one of these
 requests fails, the update fails as a whole, as when the first one does.
 
 ## Known limitations

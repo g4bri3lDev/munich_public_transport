@@ -25,7 +25,8 @@ CONF_DIRECTION_OPTION_IDS = "direction_option_ids"
 # The selected options themselves, so starting up needs no MVG requests to
 # name and match them.
 CONF_DIRECTION_OPTIONS = "direction_options"
-# Minutes of departures to load beyond MVG's first, capped response.
+# Minutes from now that a station's departures are loaded for, which can take
+# several requests since MVG caps each response.
 CONF_LOOK_AHEAD = "look_ahead"
 MAX_LOOK_AHEAD = 90
 

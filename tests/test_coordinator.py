@@ -99,15 +99,26 @@ def test_update_failed(
     assert failure.retry_after == retry_after
 
 
-def _pages(*pages: list[int]) -> Any:
+type Minute = int | tuple[int, int]
+
+
+def _departure(minute: Minute) -> Departure:
+    """Build a departure from its planned minute, or (planned minute, delay)."""
+    if isinstance(minute, int):
+        return make_departure(minute)
+    planned, delay = minute
+    return make_departure(planned, delay=delay)
+
+
+def _pages(*pages: list[Minute]) -> Any:
     """Answer departure requests with one page per offset, keyed by the offset.
 
-    Each page lists the minutes from now of its departures.
+    Each page lists its departures as minutes from now.
     """
-    by_offset = {offset: page for offset, *page in pages}
+    by_offset = {page[0]: page[1:] for page in pages}
 
     async def departures(global_id: str, *, offset_minutes: int = 0) -> list:
-        return [make_departure(minute) for minute in by_offset.get(offset_minutes, [])]
+        return [_departure(minute) for minute in by_offset.get(offset_minutes, [])]
 
     return departures
 
@@ -117,13 +128,13 @@ def _station_departures(entry: MockConfigEntry) -> list[Departure]:
 
 
 @pytest.fixture
-def look_ahead_pages() -> list[list[int]]:
+def look_ahead_pages() -> list[list[Minute]]:
     """Return the pages MVG answers, each as [offset, *minutes]; parametrize."""
     return [[0, 3, 8]]
 
 
 @pytest.fixture
-def paged_client(mock_client: MagicMock, look_ahead_pages: list[list[int]]) -> None:
+def paged_client(mock_client: MagicMock, look_ahead_pages: list[list[Minute]]) -> None:
     """Make departure requests answer from look_ahead_pages."""
     mock_client.departures.side_effect = _pages(*look_ahead_pages)
 
@@ -140,13 +151,20 @@ async def test_no_look_ahead_makes_one_request(
 @pytest.mark.parametrize(
     ("look_ahead_pages", "offsets", "minutes"),
     [
-        # Requests continue from the last departure, and the overlap at that
-        # minute is merged.
+        # Requests continue from the last planned departure, and the overlap
+        # at that minute is merged.
         ([[0, 3, 8, 12], [12, 12, 20, 34]], [12], [3, 8, 12, 20, 34]),
         # Covered by the first response.
         ([[0, 3, 30, 31]], [], [3, 30, 31]),
         # A departure past an hour-long gap does not count as covered.
         ([[0, 3, 12, 600], [12, 12, 40]], [12], [3, 12, 600, 40]),
+        # MVG cuts a response by planned time, so a delayed departure with a
+        # late real time does not show how far it reaches.
+        (
+            [[0, 3, 8, (9, 30)], [9, 12, 20, 34]],
+            [9],
+            [3, 8, (9, 30), 12, 20, 34],
+        ),
         # A response that reaches no further ends the look-ahead.
         ([[0, 3, 12], [12, 12]], [12], [3, 12]),
         # So does an empty one.
@@ -157,7 +175,7 @@ async def test_look_ahead_requests(
     mock_client: MagicMock,
     init_integration: MockConfigEntry,
     offsets: list[int],
-    minutes: list[int],
+    minutes: list[Minute],
 ) -> None:
     """Test a look-ahead requests later departures until it is covered."""
     assert mock_client.departures.await_args_list == [
@@ -165,7 +183,7 @@ async def test_look_ahead_requests(
         *(call(STATION.global_id, offset_minutes=offset) for offset in offsets),
     ]
     assert _station_departures(init_integration) == [
-        make_departure(minute) for minute in minutes
+        _departure(minute) for minute in minutes
     ]
 
 
@@ -173,14 +191,14 @@ async def test_look_ahead_requests(
 @pytest.mark.parametrize("station_data", [{**STATION_DATA, CONF_LOOK_AHEAD: 90}])
 @pytest.mark.parametrize(
     "look_ahead_pages",
-    [[[0, 5], [5, 10], [10, 15], [15, 20], [20, 25]]],
+    [[[0, 5], [5, 10], [10, 15], [15, 20], [20, 25], [25, 30], [30, 35]]],
 )
 async def test_look_ahead_request_limit(
     mock_client: MagicMock, init_integration: MockConfigEntry
 ) -> None:
-    """Test a look-ahead takes at most four requests per update."""
-    assert mock_client.departures.await_count == 4
-    assert len(_station_departures(init_integration)) == 4
+    """Test a look-ahead takes at most six requests per update."""
+    assert mock_client.departures.await_count == 6
+    assert len(_station_departures(init_integration)) == 6
 
 
 @pytest.mark.parametrize("station_data", [{**STATION_DATA, CONF_LOOK_AHEAD: 30}])

@@ -22,7 +22,7 @@ _DEFAULT_TRANSIENT_RETRY_AFTER = 60.0
 _MAX_RETRY_AFTER = 15 * 60.0
 
 # A look-ahead never takes more requests than this per update.
-_MAX_DEPARTURE_REQUESTS = 4
+_MAX_DEPARTURE_REQUESTS = 6
 # Departures further apart than this are not back to back, see _covered_until.
 _MAX_DEPARTURE_GAP = timedelta(hours=1)
 
@@ -92,9 +92,9 @@ class MunichTransportDepartureCoordinator(DataUpdateCoordinator[list[Departure]]
         """Request later departures until the look-ahead is covered.
 
         MVG answers at most 30 departures per request, which at busy stations
-        reaches only about 20 minutes ahead. Each further request starts at the
-        minute the departures so far end, so consecutive responses overlap at
-        that minute and are merged.
+        reaches only about 20 minutes ahead. Each further request starts at
+        the minute the previous answer is complete to (see _covered_until),
+        so consecutive responses overlap there and are merged.
         """
 
         now = dt_util.utcnow()
@@ -162,13 +162,17 @@ def _departure_key(
 
 
 def _covered_until(departures: list[Departure]) -> datetime | None:
-    """Return when a response's back-to-back departures end.
+    """Return the planned time up to which a response has every departure.
 
-    MVG sometimes appends departures hours later, past departures it left
-    out, so the latest one does not show how far a response reaches.
+    MVG cuts a response by planned time, so a delayed departure can show up
+    with a real time far past that cut while on-time ones before it are
+    missing. The latest planned time, not the latest real time, shows how
+    far the response reaches. MVG also sometimes appends departures hours
+    later, past departures it left out, so a gap of more than an hour ends
+    the dense stretch.
     """
 
-    times = sorted(departure.realtime_departure for departure in departures)
+    times = sorted(departure.planned_departure for departure in departures)
     if not times:
         return None
     covered = times[0]

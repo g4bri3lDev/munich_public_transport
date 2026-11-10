@@ -22,7 +22,7 @@
           "look_ahead": "Vorausschau"
         },
         "data_description": {
-          "look_ahead": "Wie weit im Voraus Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu drei Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+          "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
         },
         "sections": {
           "subway": {
@@ -116,7 +116,7 @@
             "look_ahead": "Vorausschau"
           },
           "data_description": {
-            "look_ahead": "Wie weit im Voraus Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu drei Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+            "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
           },
           "sections": {
             "subway": {
@@ -182,7 +182,7 @@
             "look_ahead": "Vorausschau"
           },
           "data_description": {
-            "look_ahead": "Wie weit im Voraus Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu drei Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+            "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
           },
           "sections": {
             "subway": {

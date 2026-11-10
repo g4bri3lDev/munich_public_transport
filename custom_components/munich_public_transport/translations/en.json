@@ -22,7 +22,7 @@
           "look_ahead": "Look-ahead"
         },
         "data_description": {
-          "look_ahead": "How far ahead to load departures. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to three requests per update. 0 keeps one request."
+          "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
         },
         "sections": {
           "subway": {
@@ -116,7 +116,7 @@
             "look_ahead": "Look-ahead"
           },
           "data_description": {
-            "look_ahead": "How far ahead to load departures. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to three requests per update. 0 keeps one request."
+            "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
           },
           "sections": {
             "subway": {
@@ -182,7 +182,7 @@
             "look_ahead": "Look-ahead"
           },
           "data_description": {
-            "look_ahead": "How far ahead to load departures. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to three requests per update. 0 keeps one request."
+            "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
           },
           "sections": {
             "subway": {
