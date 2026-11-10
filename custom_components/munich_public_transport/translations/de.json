@@ -18,7 +18,12 @@
       "select_directions": {
         "title": "Linien und Richtungen auswählen",
         "description": "Wähle die Kombinationen aus Linie und Richtung, für die Home Assistant Sensoren anlegen soll.",
-        "data": {},
+        "data": {
+          "look_ahead": "Vorausschau"
+        },
+        "data_description": {
+          "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+        },
         "sections": {
           "subway": {
             "name": "U-Bahn",
@@ -107,7 +112,12 @@
         "select_directions": {
           "title": "Linien und Richtungen auswählen",
           "description": "Wähle die Kombinationen aus Linie und Richtung, für die Home Assistant Sensoren anlegen soll.",
-          "data": {},
+          "data": {
+            "look_ahead": "Vorausschau"
+          },
+          "data_description": {
+            "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+          },
           "sections": {
             "subway": {
               "name": "U-Bahn",
@@ -168,7 +178,12 @@
         "reconfigure": {
           "title": "Linien und Richtungen ändern",
           "description": "Wähle die Kombinationen aus Linie und Richtung für {station}.",
-          "data": {},
+          "data": {
+            "look_ahead": "Vorausschau"
+          },
+          "data_description": {
+            "look_ahead": "Für wie viele Minuten ab jetzt Abfahrten geladen werden. MVG liefert 30 Abfahrten pro Anfrage, an belebten Haltestellen nur etwa 20 Minuten im Voraus; eine Vorausschau fügt bis zu fünf Anfragen pro Aktualisierung hinzu. 0 bleibt bei einer Anfrage."
+          },
           "sections": {
             "subway": {
               "name": "U-Bahn",

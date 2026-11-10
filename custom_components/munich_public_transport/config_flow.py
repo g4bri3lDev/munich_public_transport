@@ -13,11 +13,14 @@ from homeassistant.config_entries import (
     ConfigSubentryFlow,
     SubentryFlowResult,
 )
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowHandler, section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -31,12 +34,15 @@ import probatio
 
 from .const import (
     CONF_DIRECTION_OPTION_IDS,
+    CONF_DIRECTION_OPTIONS,
+    CONF_LOOK_AHEAD,
     CONF_STATION_ABBREVIATION,
     CONF_STATION_GLOBAL_ID,
     CONF_STATION_PLACE,
     CONFIG_ENTRY_VERSION,
     DOMAIN,
     ENTRY_TITLE,
+    MAX_LOOK_AHEAD,
     SUBENTRY_TYPE_STATION,
 )
 from .entity import direction_label
@@ -163,7 +169,7 @@ class _StationFlow(_FlowBase):
                     CONF_STATION_GLOBAL_ID: station.global_id,
                     CONF_STATION_ABBREVIATION: station.abbreviation,
                     CONF_STATION_PLACE: station.place,
-                    CONF_DIRECTION_OPTION_IDS: _selected_ids(user_input),
+                    **_selection(self._direction_options, user_input),
                 },
                 station.global_id,
             )
@@ -245,7 +251,7 @@ class StationSubentryFlow(_StationFlow, ConfigSubentryFlow):
             return self.async_update_and_abort(
                 self._get_entry(),
                 subentry,
-                data_updates={CONF_DIRECTION_OPTION_IDS: _selected_ids(user_input)},
+                data_updates=_selection(self._direction_options, user_input),
             )
 
         data = subentry.data
@@ -266,10 +272,13 @@ class StationSubentryFlow(_StationFlow, ConfigSubentryFlow):
             aborted: SubentryFlowResult = self.async_abort(reason="cannot_connect")
             return aborted
 
+        self._direction_options = options
         form: SubentryFlowResult = self.async_show_form(
             step_id="reconfigure",
             data_schema=_directions_schema(
-                options, selected_ids=set(data.get(CONF_DIRECTION_OPTION_IDS, ()))
+                options,
+                selected_ids=set(data.get(CONF_DIRECTION_OPTION_IDS, ())),
+                look_ahead=data.get(CONF_LOOK_AHEAD, 0),
             ),
             description_placeholders={"station": subentry.title},
         )
@@ -299,8 +308,9 @@ def _station_choices(locations: Mapping[str, Location]) -> dict[str, str]:
 def _directions_schema(
     options: list[StationDirectionOption],
     selected_ids: set[str] | None = None,
+    look_ahead: int = 0,
 ) -> probatio.Schema:
-    """Build one collapsible multi-select per transport type."""
+    """Build one collapsible multi-select per transport type, then the look-ahead."""
 
     grouped: dict[str, list[StationDirectionOption]] = {}
     for option in sorted(
@@ -342,7 +352,31 @@ def _directions_schema(
             ),
             {"collapsed": False},
         )
+    schema[probatio.Required(CONF_LOOK_AHEAD, default=look_ahead)] = NumberSelector(
+        NumberSelectorConfig(
+            min=0,
+            max=MAX_LOOK_AHEAD,
+            step=5,
+            unit_of_measurement=UnitOfTime.MINUTES,
+            mode=NumberSelectorMode.BOX,
+        )
+    )
     return probatio.Schema(schema)
+
+
+def _selection(
+    options: list[StationDirectionOption], user_input: dict[str, Any]
+) -> dict[str, Any]:
+    """Return the subentry data for the directions and look-ahead selected."""
+
+    selected_ids = _selected_ids(user_input)
+    return {
+        CONF_DIRECTION_OPTION_IDS: selected_ids,
+        CONF_DIRECTION_OPTIONS: [
+            option.to_dict() for option in options if option.id in selected_ids
+        ],
+        CONF_LOOK_AHEAD: int(user_input[CONF_LOOK_AHEAD]),
+    }
 
 
 def _selected_ids(user_input: dict[str, Any]) -> list[str]:

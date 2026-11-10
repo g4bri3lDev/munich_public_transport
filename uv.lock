@@ -1839,7 +1839,7 @@ min-ha = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "munich-transport", specifier = "==0.2.0" }]
+requires-dist = [{ name = "munich-transport", specifier = "==0.3.0" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1855,15 +1855,15 @@ min-ha = [
 
 [[package]]
 name = "munich-transport"
-version = "0.2.0"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-37-munich-public-transport-homeassistant-min-ha'" },
     { name = "aiohttp", version = "3.14.5", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-37-munich-public-transport-homeassistant-dev' or extra != 'group-37-munich-public-transport-homeassistant-min-ha'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2e/b8/c11abd47c443a7a57a74ab8cbd8ef833978db940231263b3d0ece320262f/munich_transport-0.2.0.tar.gz", hash = "sha256:e426876dfee707cbc3b702e61c62b002c856d68462ee0f1809ab13d3eee6dcb2", size = 91122, upload-time = "2026-10-19T13:38:52.586Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/f1/b748dfe3deb1a2eac34445285efb86ed160e90211fac7479f6ce5a497d1a/munich_transport-0.3.0.tar.gz", hash = "sha256:7e8dee83acc4bf0901d86c3fc2870a70fd2ea9acb8c3edc6dc326bd9a084731b", size = 214276, upload-time = "2026-11-03T11:58:41.832Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/5b/3075b01e777f049cf443a1157f8f025bc5d4017eef37dadf475ed000b98b/munich_transport-0.2.0-py3-none-any.whl", hash = "sha256:a41edb5d5abb75742c10ca33460c15dec6debd42e2a649cbfd5df3d6ad9a24b7", size = 18928, upload-time = "2026-10-19T13:38:51.294Z" },
+    { url = "https://files.pythonhosted.org/packages/11/61/34ebac241d775c43f40390e9e97f0268b6360ffed7de779d9cfaa310df10/munich_transport-0.3.0-py3-none-any.whl", hash = "sha256:aad75bad963b0e0e8ccfcfde5ed78c0c1449a48fd79e96ee156efca9a09c8c28", size = 131821, upload-time = "2026-11-03T11:58:40.066Z" },
 ]
 
 [[package]]

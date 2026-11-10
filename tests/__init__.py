@@ -25,7 +25,8 @@ ENTRY_DATA = {
     "station_place": STATION.place,
 }
 
-STATION_DATA = {
+# Subentries saved before 2.1 only keep the selected ids.
+LEGACY_STATION_DATA = {
     **ENTRY_DATA,
     "direction_option_ids": ["SUBWAY:U6:H", "SUBWAY:U6:R"],
 }
@@ -61,6 +62,11 @@ DIRECTION_OPTIONS = [
         schedule_codes=("R", "S"),
     ),
 ]
+
+STATION_DATA = {
+    **LEGACY_STATION_DATA,
+    "direction_options": [option.to_dict() for option in DIRECTION_OPTIONS],
+}
 
 
 def make_departure(

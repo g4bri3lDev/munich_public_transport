@@ -18,7 +18,12 @@
       "select_directions": {
         "title": "Select lines and directions",
         "description": "Choose the line and direction pairings Home Assistant should create sensors for.",
-        "data": {},
+        "data": {
+          "look_ahead": "Look-ahead"
+        },
+        "data_description": {
+          "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
+        },
         "sections": {
           "subway": {
             "name": "U-Bahn",
@@ -107,7 +112,12 @@
         "select_directions": {
           "title": "Select lines and directions",
           "description": "Choose the line and direction pairings Home Assistant should create sensors for.",
-          "data": {},
+          "data": {
+            "look_ahead": "Look-ahead"
+          },
+          "data_description": {
+            "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
+          },
           "sections": {
             "subway": {
               "name": "U-Bahn",
@@ -168,7 +178,12 @@
         "reconfigure": {
           "title": "Change lines and directions",
           "description": "Choose the line and direction pairings of {station}.",
-          "data": {},
+          "data": {
+            "look_ahead": "Look-ahead"
+          },
+          "data_description": {
+            "look_ahead": "How many minutes from now to load departures for. MVG returns 30 departures per request, which at busy stations reaches only about 20 minutes ahead; a look-ahead adds up to five requests per update. 0 keeps one request."
+          },
           "sections": {
             "subway": {
               "name": "U-Bahn",

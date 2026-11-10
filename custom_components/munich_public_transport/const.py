@@ -22,6 +22,13 @@ CONF_STATION_GLOBAL_ID = "station_global_id"
 CONF_STATION_ABBREVIATION = "station_abbreviation"
 CONF_STATION_PLACE = "station_place"
 CONF_DIRECTION_OPTION_IDS = "direction_option_ids"
+# The selected options themselves, so starting up needs no MVG requests to
+# name and match them.
+CONF_DIRECTION_OPTIONS = "direction_options"
+# Minutes from now that a station's departures are loaded for, which can take
+# several requests since MVG caps each response.
+CONF_LOOK_AHEAD = "look_ahead"
+MAX_LOOK_AHEAD = 90
 
 OLD_CONF_STATION_ID = "station_id"
 OLD_CONF_STATION_NAME = "station_name"
